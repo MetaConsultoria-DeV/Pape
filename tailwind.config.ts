@@ -31,8 +31,8 @@ const config: Config = {
         'meta-gradient-v': 'linear-gradient(180deg, #2AD8FF 0%, #0067FF 100%)',
       },
       fontFamily: {
-        sans: ['Montserrat', 'system-ui', 'sans-serif'],
-        body: ['Montserrat', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+        body: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         wider2: '0.12em',

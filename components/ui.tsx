@@ -15,7 +15,7 @@ interface FieldLabelProps {
 export function FieldLabel({ number, children, hint, required }: FieldLabelProps) {
   return (
     <label className="block mb-3">
-      <span className="flex items-baseline gap-2 mb-1">
+      <span className="flex items-baseline gap-3 mb-1">
         {number && (
           <span
             style={{
@@ -211,7 +211,7 @@ export function ScaleField({
                 fontWeight: 800,
                 cursor: 'pointer',
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontFamily: 'Montserrat',
+                fontFamily: 'var(--font-montserrat)',
                 boxShadow: selected ? 'var(--shadow-blue)' : 'none',
                 transform: selected ? 'translateY(-2px)' : 'none',
               }}

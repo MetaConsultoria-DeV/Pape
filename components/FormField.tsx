@@ -1,5 +1,6 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { Controller, FieldPath, FieldValues, Control } from 'react-hook-form';
 
 interface FormFieldProps<
@@ -14,7 +15,7 @@ interface FormFieldProps<
     value: any;
     onChange: (value: any) => void;
     onBlur: () => void;
-  }) => React.ReactNode;
+  }) => ReactNode;
   error?: string;
   helper?: string;
 }

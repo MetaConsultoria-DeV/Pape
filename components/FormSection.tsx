@@ -1,9 +1,11 @@
 'use client';
 
+import { ReactNode } from 'react';
+
 interface FormSectionProps {
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   visible?: boolean;
 }
 
