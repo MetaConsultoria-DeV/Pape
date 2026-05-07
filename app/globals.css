@@ -1,0 +1,437 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import 'tailwindcss';
+
+/* ============================================================
+   Meta Consultoria — Design Tokens
+   ============================================================ */
+:root {
+  /* Brand colors */
+  --meta-blue-light:  #2AD8FF;
+  --meta-blue:        #0067FF;
+  --meta-blue-accent: #22C0FF;
+  --meta-gradient:    linear-gradient(135deg, #2AD8FF 0%, #0067FF 100%);
+  --meta-gradient-h:  linear-gradient(90deg, #2AD8FF 0%, #0067FF 100%);
+  --meta-gradient-v:  linear-gradient(180deg, #2AD8FF 0%, #0067FF 100%);
+
+  /* Neutrals */
+  --meta-navy:    #131936;
+  --meta-paper:   #F4F7FF;
+  --meta-white:   #FFFFFF;
+
+  /* Navy scale */
+  --meta-navy-90: #1B2240;
+  --meta-navy-70: #3A416A;
+  --meta-navy-50: #6B7299;
+  --meta-navy-30: #B5BACC;
+  --meta-navy-10: #E5E8F2;
+
+  /* States */
+  --meta-success: #1FBF6A;
+  --meta-warning: #F5A623;
+  --meta-danger:  #E5484D;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 2px rgba(19, 25, 54, 0.08);
+  --shadow-md:   0 4px 12px rgba(19, 25, 54, 0.10);
+  --shadow-lg:   0 12px 32px rgba(19, 25, 54, 0.14);
+  --shadow-xl:   0 24px 48px rgba(19, 25, 54, 0.18);
+  --shadow-glow: 0 0 24px rgba(42, 216, 255, 0.45);
+  --shadow-blue: 0 8px 24px rgba(0, 103, 255, 0.25);
+
+  /* Radius */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  color: var(--meta-navy);
+  background: var(--meta-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Background pattern (sutil network/triangles)
+   ============================================================ */
+.meta-bg {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(42, 216, 255, 0.08) 0%, transparent 35%),
+    radial-gradient(circle at 100% 100%, rgba(0, 103, 255, 0.08) 0%, transparent 35%),
+    var(--meta-paper);
+  min-height: 100vh;
+  position: relative;
+}
+
+.meta-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 400px;
+  background-image: url('/meta/network-corner.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top right;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   Typography classes
+   ============================================================ */
+.h-display {
+  font-size: 96px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.h1 {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.h2 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.h3 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.h4 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Form Card
+   ============================================================ */
+.meta-card {
+  background: var(--meta-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(229, 232, 242, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.meta-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--meta-gradient-h);
+}
+
+/* ============================================================
+   Form fields
+   ============================================================ */
+.meta-input {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--meta-navy-10);
+  background-color: #FAFBFC;
+  color: var(--meta-navy);
+  font-size: 16px;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.meta-input::placeholder {
+  color: var(--meta-navy-30);
+  font-weight: 400;
+}
+
+.meta-input:hover {
+  border-color: var(--meta-navy-30);
+  background-color: var(--meta-white);
+}
+
+.meta-input:focus {
+  border-color: var(--meta-blue);
+  background-color: var(--meta-white);
+  box-shadow: 0 0 0 4px rgba(0, 103, 255, 0.12);
+}
+
+/* ============================================================
+   Radio / Checkbox option cards
+   ============================================================ */
+.meta-option {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--meta-navy-10);
+  background: var(--meta-white);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.meta-option:hover {
+  border-color: var(--meta-blue-accent);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.meta-option--selected {
+  border-color: var(--meta-blue);
+  background: linear-gradient(135deg, rgba(42, 216, 255, 0.06) 0%, rgba(0, 103, 255, 0.08) 100%);
+  box-shadow: var(--shadow-blue);
+}
+
+.meta-option--selected::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--meta-gradient-v);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--meta-blue);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+label {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  cursor: pointer;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--meta-gradient);
+  color: var(--meta-white);
+  box-shadow: var(--shadow-blue);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 103, 255, 0.4);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: var(--meta-white);
+  color: var(--meta-navy);
+  border: 2px solid var(--meta-navy-10);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--meta-blue);
+  color: var(--meta-blue);
+  background: rgba(0, 103, 255, 0.04);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.meta-header {
+  background: var(--meta-gradient);
+  color: var(--meta-white);
+  padding: 56px 16px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.meta-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/meta/halftone-triangles.png');
+  background-size: cover;
+  background-position: right center;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+}
+
+.meta-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, transparent 0%, var(--meta-paper) 100%);
+}
+
+/* ============================================================
+   Progress bar
+   ============================================================ */
+.meta-progress {
+  background: var(--meta-white);
+  padding: 20px 16px;
+  box-shadow: 0 4px 20px rgba(19, 25, 54, 0.06);
+  position: relative;
+  z-index: 1;
+}
+
+.meta-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--meta-navy-10);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+
+.meta-progress-fill {
+  height: 100%;
+  background: var(--meta-gradient-h);
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(42, 216, 255, 0.5);
+  position: relative;
+}
+
+.meta-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meta-fade-in {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.95;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.meta-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================================
+   Utility
+   ============================================================ */
+.text-gradient {
+  background: var(--meta-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.meta-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--meta-navy-10) 50%, transparent 100%);
+  margin: 32px 0;
+}
