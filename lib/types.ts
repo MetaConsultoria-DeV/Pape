@@ -1,5 +1,26 @@
 /* Tipos do formulário PAPE */
 
+// ── Configuração de steps/fields (serializável, para passar de server → client) ──
+
+export type RadioOption = { value: string; label: string; description?: string };
+
+export type FieldDef =
+  | { type: 'input'; name: string; label: string; number?: number; hint?: string; inputType?: string; placeholder?: string; showWhen?: { field: string; value: string } }
+  | { type: 'radio'; name: string; label: string; number?: number; options: RadioOption[]; columns?: number; showWhen?: { field: string; value: string } }
+  | { type: 'checkbox'; name: string; label: string; number?: number; options: string[]; showWhen?: { field: string; value: string } }
+  | { type: 'scale'; name: string; label: string; number?: number; lowLabel?: string; highLabel?: string; showWhen?: { field: string; value: string } }
+  | { type: 'select-projetos'; name: string; label: string; number?: number }
+  | { type: 'select-membros';  name: string; label: string; number?: number };
+
+export type StepDef = {
+  eyebrow?: string | { watchField: string; map: Record<string, string> };
+  title: string;
+  description?: string;
+  fields: FieldDef[];
+};
+
+
+
 export interface Projeto {
   id: number;
   nome: string;
