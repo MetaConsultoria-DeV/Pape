@@ -90,7 +90,7 @@ const STEPS: StepDef[] = [
   // ── 1. Identificação ────────────────────────────────────────────────────────
   step('Identificação', 'Vamos começar?', [
     selectMembros('respondente_nome', 'Quem está respondendo?'),
-  ], 'Para começar, selecione seu nome na lista de membros da equipe.'),
+  ], 'Para começar, selecione seu nome na lista de gerentes de projetos.'),
 
   // ── 2. Iniciação — Seleção do projeto ───────────────────────────────────────
   step('Iniciação', 'Sobre qual projeto?', [
