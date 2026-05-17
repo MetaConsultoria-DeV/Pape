@@ -24,8 +24,8 @@ export type StepDef = {
 export interface Projeto {
   id: number;
   nome: string;
-  numero_contrato: string;
-  valor_total: number;
+  numero_contrato?: string | null;
+  valor_total?: number | null;
 }
 
 export interface ProjetoDetalhes extends Projeto {
