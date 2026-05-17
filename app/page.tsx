@@ -25,15 +25,6 @@ const PERCENTUAIS = [
   { value: '81-100%', label: '81% – 100%' },
 ];
 
-// Seção: Procedimentos Iniciais
-const COORDENACOES = [
-  'Gestão de Negócios',
-  'Otimização de Processos',
-  'Construção e Energia',
-  'Desenvolvimento de Máquinas',
-  'Tecnologia e Desenvolvimento',
-];
-
 // Seção: Metodologia
 const METODOLOGIAS = [
   { value: 'Tradicional', label: 'Tradicional', description: 'Cronograma fechado, marcos e fases definidas' },
@@ -96,21 +87,6 @@ const STEPS: StepDef[] = [
   step('Iniciação', 'Sobre qual projeto?', [
     selectProjetos('projeto_externo_id', 'Sobre qual projeto você está respondendo?', { number: 1 }),
   ], 'Selecione o projeto externo que você está acompanhando.'),
-
-  // ── 3. Iniciação — Frequência de resposta ───────────────────────────────────
-  // Se "Não" → pula os Procedimentos Iniciais (step seguinte) e vai para Orientador
-  step('Iniciação', 'Primeira resposta?', [
-    radio('primeira_resposta', 'É a primeira vez respondendo este formulário para o projeto?', SIM_NAO, { number: 2, columns: 2 }),
-  ]),
-
-  // ── 4. Procedimentos Iniciais ── aparece apenas se: primeira_resposta = "Sim"
-  step('Procedimentos Iniciais', 'Dados do projeto', [
-    input('data_inicio',      'Qual a data oficial de início do projeto?', { number: 3, inputType: 'date' }),
-    input('numero_contrato',  'Número do contrato',                         { number: 4, hint: 'Exemplo: 111.1111',            placeholder: '111.1111'                   }),
-    input('valor_projeto',    'Valor do projeto',                           { number: 5, hint: 'Exemplo: 1.000,00 (mil reais)', placeholder: '1.000,00'                   }),
-    input('servicos_projeto', 'Quais os serviços do projeto?',              { number: 6, placeholder: 'Liste os serviços contratados' }),
-    checkbox('coordenacoes',  'Coordenações às quais o projeto faz parte',  COORDENACOES, { number: 7 }),
-  ], 'Confirme as informações iniciais do contrato.'),
 
   // ── 5. Orientador Técnico — Presença ────────────────────────────────────────
   // Se "Não" → pula os Detalhes do orientador (step seguinte) e vai para Metodologia
