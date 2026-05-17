@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const papeFormSchema = z.object({
+  nome_projeto: z.string().optional(),
   respondente_nome: z.string().min(1, 'Nome é obrigatório'),
 
   // Iniciação

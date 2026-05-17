@@ -221,7 +221,7 @@ export default async function Page() {
 
   return (
     <div className="meta-bg">
-      <PapeHeader />
+      <PapeHeader actionHref="/novo-projeto" actionLabel="Criar novo projeto" />
       <PapeForm projetos={projetos} membros={membros} steps={STEPS} />
     </div>
   );

@@ -233,6 +233,84 @@ function FieldRenderer({
   }
 }
 
+function isFieldVisible(field: FieldDef, values: Partial<PapeFormInputs>) {
+  if ('showWhen' in field && field.showWhen) {
+    const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
+    return watched === field.showWhen.value;
+  }
+
+  return true;
+}
+
+function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>) {
+  const value = values[field.name as keyof PapeFormInputs];
+
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value.join(', ') : 'Não informado';
+  }
+
+  if (value === undefined || value === null || value === '') {
+    return 'Não informado';
+  }
+
+  if (field.type === 'scale') {
+    return `${value} de 5`;
+  }
+
+  return String(value);
+}
+
+function ReviewStep({
+  steps,
+  values,
+}: {
+  steps: StepDef[];
+  values: Partial<PapeFormInputs>;
+}) {
+  return (
+    <StepCard
+      eyebrow="Validação"
+      title="Revise os dados do projeto"
+      description="Confira as informações antes de confirmar o cadastro."
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {steps.map((reviewStep) => {
+          const visibleFields = reviewStep.fields.filter((field) => isFieldVisible(field, values));
+          if (visibleFields.length === 0) return null;
+
+          return (
+            <section key={reviewStep.title} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="eyebrow" style={{ color: 'var(--meta-blue)' }}>
+                {resolveEyebrow(reviewStep.eyebrow, values) ?? reviewStep.title}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {visibleFields.map((field) => (
+                  <div
+                    key={field.name}
+                    style={{
+                      padding: '14px 16px',
+                      border: '1px solid var(--meta-navy-10)',
+                      borderRadius: 'var(--radius-md)',
+                      background: '#FAFBFC',
+                    }}
+                  >
+                    <div style={{ fontSize: 13, color: 'var(--meta-navy-50)', fontWeight: 700, marginBottom: 4 }}>
+                      {field.number ? `${field.number}. ` : ''}{field.label}
+                    </div>
+                    <div style={{ fontSize: 15, color: 'var(--meta-navy)', fontWeight: 700, lineHeight: 1.5 }}>
+                      {formatReviewValue(field, values)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </StepCard>
+  );
+}
+
 function resolveEyebrow(
   eyebrow: StepDef['eyebrow'],
   values: Partial<PapeFormInputs>,
@@ -248,10 +326,16 @@ export default function PapeForm({
   projetos,
   membros,
   steps,
+  mode = 'pape',
+  submitLabel,
+  defaultValues,
 }: {
   projetos: Projeto[];
   membros: Membro[];
   steps: StepDef[];
+  mode?: 'pape' | 'visual-project';
+  submitLabel?: string;
+  defaultValues?: Partial<PapeFormInputs>;
 }) {
   const router = useRouter();
   const TOTAL_STEPS = steps.length;
@@ -260,8 +344,9 @@ export default function PapeForm({
   const [submitting, setSubmitting] = useState(false);
 
   const { control, watch, handleSubmit, reset } = useForm<PapeFormInputs>({
-    resolver: zodResolver(papeFormSchema),
+    resolver: mode === 'pape' ? zodResolver(papeFormSchema) : undefined,
     defaultValues: {
+      nome_projeto: '',
       respondente_nome: '',
       primeira_resposta: 'Sim',
       possui_orientador: 'Não',
@@ -276,6 +361,7 @@ export default function PapeForm({
       comunicacao_cliente: 3,
       abertura_cliente: 3,
       satisfacao_cliente: 3,
+      ...defaultValues,
     },
   });
 
@@ -316,6 +402,12 @@ export default function PapeForm({
   };
 
   const onSubmit = async (data: PapeFormInputs) => {
+    if (mode === 'visual-project') {
+      setStep(TOTAL_STEPS + 1);
+      setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
+      return;
+    }
+
     setSubmitting(true);
     try {
       await axios.post(`${API_URL}/pape`, data);
@@ -337,18 +429,28 @@ export default function PapeForm({
     setStepHistory([0]);
   };
 
-  const progress = step === TOTAL_STEPS ? 100 : Math.round(((step + 1) / TOTAL_STEPS) * 100);
+  const showReviewStep = mode === 'visual-project' && step === TOTAL_STEPS;
+  const showSuccessStep = mode === 'visual-project' ? step === TOTAL_STEPS + 1 : step === TOTAL_STEPS;
+  const totalVisibleSteps = mode === 'visual-project' ? TOTAL_STEPS + 1 : TOTAL_STEPS;
+  const currentVisibleStep = showSuccessStep ? totalVisibleSteps : Math.min(step + 1, totalVisibleSteps);
+  const progress = showSuccessStep ? 100 : Math.round((currentVisibleStep / totalVisibleSteps) * 100);
   const currentStep = steps[step];
   const isLastStep = step === TOTAL_STEPS - 1;
+  const finalSubmitLabel = submitLabel ?? 'Enviar respostas →';
+
+  const goToReviewStep = () => {
+    setStep(TOTAL_STEPS);
+    setStepHistory([...stepHistory, TOTAL_STEPS]);
+  };
 
   return (
     <>
-      {step < TOTAL_STEPS && (
+      {!showSuccessStep && (
         <div className="meta-progress">
           <div style={{ maxWidth: 880, margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div className="eyebrow" style={{ color: 'var(--meta-navy-50)' }}>
-                Etapa {step + 1} de {TOTAL_STEPS}
+                Etapa {currentVisibleStep} de {totalVisibleSteps}
               </div>
               <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--meta-blue)', fontVariantNumeric: 'tabular-nums' }}>
                 {progress}%
@@ -384,7 +486,11 @@ export default function PapeForm({
               </StepCard>
             )}
 
-            {step === TOTAL_STEPS && (
+            {showReviewStep && (
+              <ReviewStep steps={steps} values={values} />
+            )}
+
+            {showSuccessStep && (
               <div className="meta-fade-in" style={{ textAlign: 'center', padding: '24px 0' }}>
                 <div
                   style={{
@@ -405,15 +511,17 @@ export default function PapeForm({
                   ✓
                 </div>
                 <div className="eyebrow" style={{ color: 'var(--meta-success)', marginBottom: 12 }}>
-                  Recebido com sucesso
+                  {mode === 'visual-project' ? 'Projeto preparado' : 'Recebido com sucesso'}
                 </div>
                 <h2 className="h2" style={{ marginBottom: 12 }}>
-                  Obrigado por <span className="text-gradient">responder!</span>
+                  {mode === 'visual-project' ? 'Cadastro visual concluído' : <>Obrigado por <span className="text-gradient">responder!</span></>}
                 </h2>
                 <p style={{ fontSize: 16, color: 'var(--meta-navy-50)', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 36px' }}>
-                  Suas respostas foram salvas e serão processadas pela equipe Meta. Seu acompanhamento é
-                  fundamental para o sucesso do projeto.
+                  {mode === 'visual-project'
+                    ? 'Esta tela ainda não salva no banco de dados. Ela deixa o fluxo pronto para conectar ao backend quando o endpoint de criação de projetos estiver disponível.'
+                    : 'Suas respostas foram salvas e serão processadas pela equipe Meta. Seu acompanhamento é fundamental para o sucesso do projeto.'}
                 </p>
+                {mode === 'pape' && (
                 <div
                   style={{
                     padding: 24,
@@ -449,17 +557,20 @@ export default function PapeForm({
                     </div>
                   </div>
                 </div>
+                )}
                 <p style={{ fontSize: 14, color: 'var(--meta-navy-50)', marginBottom: 20, fontWeight: 500 }}>
-                  Deseja responder novamente para outro projeto?
+                  {mode === 'visual-project' ? 'Deseja cadastrar outro projeto?' : 'Deseja responder novamente para outro projeto?'}
                 </p>
                 <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
-                  <button onClick={restartForm} className="btn btn-primary">↻ Responder novamente</button>
+                  <button onClick={restartForm} className="btn btn-primary">
+                    {mode === 'visual-project' ? '↻ Criar outro projeto' : '↻ Responder novamente'}
+                  </button>
                   <button onClick={() => router.push('/')} className="btn btn-secondary">Voltar ao início</button>
                 </div>
               </div>
             )}
 
-            {step < TOTAL_STEPS && (
+            {!showSuccessStep && (
               <>
                 <div className="meta-divider" />
                 <div style={{ display: 'flex', gap: 12 }}>
@@ -472,12 +583,28 @@ export default function PapeForm({
                     ← Anterior
                   </button>
                   <button
-                    onClick={() => isLastStep ? handleSubmit(onSubmit)() : goToNextStep()}
+                    onClick={() => {
+                      if (showReviewStep) {
+                        handleSubmit(onSubmit)();
+                        return;
+                      }
+
+                      if (isLastStep) {
+                        mode === 'visual-project' ? goToReviewStep() : handleSubmit(onSubmit)();
+                        return;
+                      }
+
+                      goToNextStep();
+                    }}
                     disabled={submitting}
                     className="btn btn-primary"
                     style={{ flex: 2 }}
                   >
-                    {isLastStep ? (submitting ? 'Enviando…' : 'Enviar respostas →') : 'Próximo →'}
+                    {showReviewStep
+                      ? (submitting ? 'Enviando…' : 'Confirmar envio →')
+                      : isLastStep
+                        ? (submitting ? 'Enviando…' : finalSubmitLabel)
+                        : 'Próximo →'}
                   </button>
                 </div>
               </>
