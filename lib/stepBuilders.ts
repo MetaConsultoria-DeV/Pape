@@ -3,7 +3,7 @@ import type { FieldDef, RadioOption, StepDef } from './types';
 type InputOpts = { number?: number; hint?: string; inputType?: string; placeholder?: string; showWhen?: { field: string; value: string } };
 type RadioOpts = { number?: number; columns?: number; showWhen?: { field: string; value: string } };
 type CheckboxOpts = { number?: number; showWhen?: { field: string; value: string } };
-type ScaleOpts = { number?: number; lowLabel?: string; highLabel?: string; showWhen?: { field: string; value: string } };
+type ScaleOpts = { number?: number; lowLabel?: string; highLabel?: string; dictionary?: string[]; showWhen?: { field: string; value: string } };
 type SelectOpts = { number?: number };
 
 export const input = (name: string, label: string, opts: InputOpts = {}): FieldDef =>

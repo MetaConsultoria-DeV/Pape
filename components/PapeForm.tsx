@@ -114,7 +114,8 @@ function FormScale({
   number,
   lowLabel,
   highLabel,
-}: BaseProps & { lowLabel?: string; highLabel?: string }) {
+  dictionary,
+}: BaseProps & { lowLabel?: string; highLabel?: string; dictionary?: string[] }) {
   return (
     <Controller
       control={control}
@@ -127,6 +128,7 @@ function FormScale({
             onChange={field.onChange}
             lowLabel={lowLabel}
             highLabel={highLabel}
+            dictionary={dictionary}
           />
         </div>
       )}
@@ -270,7 +272,7 @@ function FieldRenderer({
     case 'checkbox':
       return <FormCheckbox {...base} options={field.options} />;
     case 'scale':
-      return <FormScale {...base} lowLabel={field.lowLabel} highLabel={field.highLabel} />;
+      return <FormScale {...base} lowLabel={field.lowLabel} highLabel={field.highLabel} dictionary={field.dictionary} />;
     case 'select-projetos':
       return (
         <ProjetosSelect

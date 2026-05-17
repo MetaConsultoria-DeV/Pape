@@ -180,6 +180,7 @@ interface ScaleFieldProps {
   onChange: (v: number) => void;
   lowLabel?: string;
   highLabel?: string;
+  dictionary?: string[];
 }
 
 export function ScaleField({
@@ -187,9 +188,35 @@ export function ScaleField({
   onChange,
   lowLabel = 'Muito baixo',
   highLabel = 'Muito alto',
+  dictionary,
 }: ScaleFieldProps) {
   return (
     <div>
+      {dictionary && dictionary.length > 0 && (
+        <div
+          role="list"
+          aria-label="Dicionário de respostas"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            margin: '0 0 18px',
+            color: 'var(--meta-navy)',
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1.55,
+          }}
+        >
+          {dictionary.map((item, index) => (
+            <div key={index} role="listitem" style={{ display: 'flex', gap: 6 }}>
+              <span style={{ flex: '0 0 auto', fontVariantNumeric: 'tabular-nums' }}>
+                {index + 1}.
+              </span>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 8 }}>
         {[1, 2, 3, 4, 5].map((n) => {
           const selected = value === n;
