@@ -3,7 +3,7 @@
 import { useForm, Controller, Control, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { papeFormSchema, PapeFormInputs } from '@/lib/schema';
-import { useState, ReactNode } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Projeto, Membro, StepDef, FieldDef } from '@/lib/types';
@@ -140,7 +140,24 @@ function ProjetosSelect({
   label,
   number,
   projetos,
-}: BaseProps & { projetos: Projeto[] }) {
+  hasSelectedManager,
+  isLoading,
+  error,
+}: BaseProps & {
+  projetos: Projeto[];
+  hasSelectedManager: boolean;
+  isLoading: boolean;
+  error: string | null;
+}) {
+  const placeholder = !hasSelectedManager
+    ? 'Selecione seu nome primeiro...'
+    : isLoading
+      ? 'Carregando projetos...'
+      : projetos.length === 0
+        ? 'Nenhum projeto encontrado para esta gerente'
+        : 'Selecione um projeto...';
+  const isDisabled = !hasSelectedManager || isLoading || Boolean(error) || projetos.length === 0;
+
   return (
     <Controller
       control={control}
@@ -152,12 +169,34 @@ function ProjetosSelect({
             className="meta-input"
             value={(field.value as number) || ''}
             onChange={(e) => field.onChange(Number(e.target.value))}
+            disabled={isDisabled}
+            title={placeholder}
           >
             <option value="">Selecione um projeto…</option>
             {projetos.map((p) => (
               <option key={p.id} value={p.id}>{p.nome}</option>
             ))}
           </select>
+          {!hasSelectedManager && (
+            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--meta-navy-50)', fontWeight: 600 }}>
+              Selecione seu nome na etapa anterior para carregar somente seus projetos.
+            </p>
+          )}
+          {hasSelectedManager && isLoading && (
+            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--meta-navy-50)', fontWeight: 600 }}>
+              Carregando projetos vinculados a esta gerente...
+            </p>
+          )}
+          {error && (
+            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--meta-danger, #D92D20)', fontWeight: 600 }}>
+              {error}
+            </p>
+          )}
+          {hasSelectedManager && !isLoading && !error && projetos.length === 0 && (
+            <p style={{ marginTop: 8, fontSize: 13, color: 'var(--meta-navy-50)', fontWeight: 600 }}>
+              Nenhum projeto vinculado a esta gerente foi encontrado.
+            </p>
+          )}
         </div>
       )}
     />
@@ -202,12 +241,18 @@ function FieldRenderer({
   values,
   projetos,
   membros,
+  hasSelectedManager,
+  projetosLoading,
+  projetosError,
 }: {
   field: FieldDef;
   control: Control<PapeFormInputs>;
   values: Partial<PapeFormInputs>;
   projetos: Projeto[];
   membros: Membro[];
+  hasSelectedManager: boolean;
+  projetosLoading: boolean;
+  projetosError: string | null;
 }) {
   if ('showWhen' in field && field.showWhen) {
     const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
@@ -227,7 +272,15 @@ function FieldRenderer({
     case 'scale':
       return <FormScale {...base} lowLabel={field.lowLabel} highLabel={field.highLabel} />;
     case 'select-projetos':
-      return <ProjetosSelect {...base} projetos={projetos} />;
+      return (
+        <ProjetosSelect
+          {...base}
+          projetos={projetos}
+          hasSelectedManager={hasSelectedManager}
+          isLoading={projetosLoading}
+          error={projetosError}
+        />
+      );
     case 'select-membros':
       return <MembrosSelect {...base} membros={membros} />;
   }
@@ -342,8 +395,11 @@ export default function PapeForm({
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<number[]>([0]);
   const [submitting, setSubmitting] = useState(false);
+  const [gerenteProjetos, setGerenteProjetos] = useState<Projeto[]>(mode === 'pape' ? [] : projetos);
+  const [projetosLoading, setProjetosLoading] = useState(false);
+  const [projetosError, setProjetosError] = useState<string | null>(null);
 
-  const { control, watch, handleSubmit, reset } = useForm<PapeFormInputs>({
+  const { control, watch, handleSubmit, reset, setValue } = useForm<PapeFormInputs>({
     resolver: mode === 'pape' ? zodResolver(papeFormSchema) : undefined,
     defaultValues: {
       nome_projeto: '',
@@ -366,25 +422,95 @@ export default function PapeForm({
   });
 
   const values = watch();
+  const selectedManager = membros.find((membro) => membro.nome === values.respondente_nome);
+  const hasSelectedManager = mode !== 'pape' || Boolean(selectedManager);
+
+  useEffect(() => {
+    if (mode !== 'pape') {
+      setGerenteProjetos(projetos);
+      return;
+    }
+
+    setValue('projeto_externo_id', 0, { shouldValidate: false });
+
+    if (!selectedManager) {
+      setGerenteProjetos([]);
+      setProjetosError(null);
+      setProjetosLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setProjetosLoading(true);
+    setProjetosError(null);
+
+    axios
+      .get<Projeto[]>(`${API_URL}/projetos`, {
+        params: { gerente_id: selectedManager.id },
+        signal: controller.signal,
+      })
+      .then((response) => {
+        setGerenteProjetos(response.data);
+      })
+      .catch((error) => {
+        if (axios.isCancel(error) || controller.signal.aborted) return;
+        setGerenteProjetos([]);
+        setProjetosError('NÃ£o foi possÃ­vel carregar os projetos desta gerente.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setProjetosLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [mode, projetos, selectedManager, setValue]);
+
+  const getStepIndexByField = (fieldName: string) =>
+    steps.findIndex((candidate) => candidate.fields.some((field) => field.name === fieldName));
+
+  const getFallbackNextStep = () => Math.min(step + 1, TOTAL_STEPS - 1);
 
   const getNextStep = () => {
-    if (step === 0) return 1;
-    if (step === 1) return 2;
-    if (step === 2) return values.primeira_resposta === 'Não' ? 4 : 3;
-    if (step === 3) return 4;
-    if (step === 4) return values.possui_orientador === 'Não' ? 6 : 5;
-    if (step === 5) return 6;
-    if (step === 6) return values.modelo_gerenciamento === 'Ágil' ? 7 : 8;
-    if (step === 7) return 9;
-    if (step === 8) return 9;
-    if (step === 9) {
-      if (values.status_cronograma === 'Com risco de atraso' || values.status_cronograma === 'Atrasado') return 10;
-      return 11;
+    const currentFieldNames = new Set(currentStep?.fields.map((field) => field.name) ?? []);
+    const nextSequentialStep = getFallbackNextStep();
+
+    if (currentFieldNames.has('primeira_resposta')) {
+      const orientadorStep = getStepIndexByField('possui_orientador');
+      return values.primeira_resposta === 'Não' && orientadorStep >= 0 ? orientadorStep : nextSequentialStep;
     }
-    if (step === 10) return 11;
-    if (step === 11) return 12;
-    if (step === 12) return 13;
-    return step;
+
+    if (currentFieldNames.has('possui_orientador')) {
+      const metodologiaStep = getStepIndexByField('modelo_gerenciamento');
+      return values.possui_orientador === 'Não' && metodologiaStep >= 0 ? metodologiaStep : nextSequentialStep;
+    }
+
+    if (currentFieldNames.has('modelo_gerenciamento')) {
+      const agileStep = getStepIndexByField('pct_story_points');
+      const traditionalStep = getStepIndexByField('cliente_percebeu_valor');
+      return values.modelo_gerenciamento === 'Ágil'
+        ? (agileStep >= 0 ? agileStep : nextSequentialStep)
+        : (traditionalStep >= 0 ? traditionalStep : nextSequentialStep);
+    }
+
+    if (currentFieldNames.has('pct_story_points') || currentFieldNames.has('cliente_percebeu_valor')) {
+      const cronogramaStep = getStepIndexByField('pct_conclusao');
+      return cronogramaStep >= 0 ? cronogramaStep : nextSequentialStep;
+    }
+
+    if (currentFieldNames.has('status_cronograma')) {
+      const motivosAtrasoStep = getStepIndexByField('motivos_atraso');
+      const capacidadeStep = getStepIndexByField('capacitacao_equipe');
+      const precisaMotivos = values.status_cronograma === 'Com risco de atraso' || values.status_cronograma === 'Atrasado';
+
+      if (precisaMotivos && motivosAtrasoStep >= 0) return motivosAtrasoStep;
+      return capacidadeStep >= 0 ? capacidadeStep : nextSequentialStep;
+    }
+
+    if (currentFieldNames.has('motivos_atraso')) {
+      const capacidadeStep = getStepIndexByField('capacitacao_equipe');
+      return capacidadeStep >= 0 ? capacidadeStep : nextSequentialStep;
+    }
+
+    return nextSequentialStep;
   };
 
   const goToNextStep = () => {
@@ -479,8 +605,11 @@ export default function PapeForm({
                     field={field}
                     control={control}
                     values={values}
-                    projetos={projetos}
+                    projetos={gerenteProjetos}
                     membros={membros}
+                    hasSelectedManager={hasSelectedManager}
+                    projetosLoading={projetosLoading}
+                    projetosError={projetosError}
                   />
                 ))}
               </StepCard>
