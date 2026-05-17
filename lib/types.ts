@@ -26,6 +26,8 @@ export interface Projeto {
   nome: string;
   numero_contrato?: string | null;
   valor_total?: number | null;
+  possui_orientador?: boolean | null;
+  nome_orientador?: string | null;
 }
 
 export interface ProjetoDetalhes extends Projeto {

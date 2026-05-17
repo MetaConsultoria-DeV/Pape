@@ -424,6 +424,9 @@ export default function PapeForm({
   const values = watch();
   const selectedManager = membros.find((membro) => membro.nome === values.respondente_nome);
   const hasSelectedManager = mode !== 'pape' || Boolean(selectedManager);
+  const selectedProject = gerenteProjetos.find((projeto) => projeto.id === Number(values.projeto_externo_id));
+  const selectedProjectHasOrientadorInfo =
+    selectedProject?.possui_orientador !== null && selectedProject?.possui_orientador !== undefined;
 
   useEffect(() => {
     if (mode !== 'pape') {
@@ -432,6 +435,8 @@ export default function PapeForm({
     }
 
     setValue('projeto_externo_id', 0, { shouldValidate: false });
+    setValue('possui_orientador', 'Não', { shouldValidate: false });
+    setValue('nome_orientador', '', { shouldValidate: false });
 
     if (!selectedManager) {
       setGerenteProjetos([]);
@@ -464,6 +469,19 @@ export default function PapeForm({
     return () => controller.abort();
   }, [mode, projetos, selectedManager, setValue]);
 
+  useEffect(() => {
+    if (mode !== 'pape' || !selectedProject) return;
+
+    if (!selectedProjectHasOrientadorInfo) {
+      setValue('possui_orientador', 'Não', { shouldValidate: false });
+      setValue('nome_orientador', '', { shouldValidate: false });
+      return;
+    }
+
+    setValue('possui_orientador', selectedProject.possui_orientador ? 'Sim' : 'Não', { shouldValidate: false });
+    setValue('nome_orientador', selectedProject.nome_orientador ?? '', { shouldValidate: false });
+  }, [mode, selectedProject, selectedProjectHasOrientadorInfo, setValue]);
+
   const getStepIndexByField = (fieldName: string) =>
     steps.findIndex((candidate) => candidate.fields.some((field) => field.name === fieldName));
 
@@ -472,6 +490,17 @@ export default function PapeForm({
   const getNextStep = () => {
     const currentFieldNames = new Set(currentStep?.fields.map((field) => field.name) ?? []);
     const nextSequentialStep = getFallbackNextStep();
+
+    if (currentFieldNames.has('projeto_externo_id') && selectedProjectHasOrientadorInfo) {
+      const orientadorDetalhesStep = getStepIndexByField('nome_orientador');
+      const metodologiaStep = getStepIndexByField('modelo_gerenciamento');
+
+      if (selectedProject?.possui_orientador) {
+        return orientadorDetalhesStep >= 0 ? orientadorDetalhesStep : nextSequentialStep;
+      }
+
+      return metodologiaStep >= 0 ? metodologiaStep : nextSequentialStep;
+    }
 
     if (currentFieldNames.has('primeira_resposta')) {
       const orientadorStep = getStepIndexByField('possui_orientador');
