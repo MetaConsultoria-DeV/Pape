@@ -4,9 +4,11 @@ import { MetaSymbol } from '@/components/ui';
 type PapeHeaderProps = {
   actionHref?: string;
   actionLabel?: string;
+  dashboardHref?: string;
+  dashboardLabel?: string;
 };
 
-export default function PapeHeader({ actionHref, actionLabel }: PapeHeaderProps) {
+export default function PapeHeader({ actionHref, actionLabel, dashboardHref, dashboardLabel }: PapeHeaderProps) {
   return (
     <header className="meta-header">
       <div className="meta-header-inner">
@@ -18,11 +20,22 @@ export default function PapeHeader({ actionHref, actionLabel }: PapeHeaderProps)
             </div>
           </div>
 
-          {actionHref && actionLabel && (
-            <Link href={actionHref} className="meta-header-action">
-              {actionLabel}
-            </Link>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {dashboardHref && dashboardLabel && (
+              <Link 
+                href={dashboardHref} 
+                className="meta-header-action" 
+                style={{ backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white' }}
+              >
+                {dashboardLabel}
+              </Link>
+            )}
+            {actionHref && actionLabel && (
+              <Link href={actionHref} className="meta-header-action">
+                {actionLabel}
+              </Link>
+            )}
+          </div>
         </div>
 
         <h1
