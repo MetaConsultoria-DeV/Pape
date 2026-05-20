@@ -76,49 +76,39 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* CONTEÚDO PRINCIPAL (Flutuando sobre o header) */}
-      <main className="max-w-6xl mx-auto px-6" style={{ marginTop: '-40px', position: 'relative', zIndex: 10 }}>
+      {/* CONTEÚDO PRINCIPAL alinhado exatamente ao header (880px) */}
+      <main className="mx-auto px-4" style={{ maxWidth: '880px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
         
         {/* CARDS DE DESTAQUE */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           
-          <div className="meta-card p-8 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
-              <ClipboardList size={22} className="text-meta-blue" />
+          <div className="meta-card p-6 flex flex-col items-center justify-center text-center gap-2" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
+            <div className="flex items-center justify-center gap-2 text-meta-navy-50 font-bold uppercase text-sm tracking-wider w-full">
+              <ClipboardList size={20} className="text-meta-blue" />
               Projetos Avaliados
             </div>
-            <div className="text-6xl font-black text-meta-navy tracking-tighter text-gradient">
+            <div className="text-5xl font-black text-meta-navy tracking-tighter" style={{ marginTop: '8px' }}>
               {data.total_projetos}
             </div>
           </div>
 
-          <div className="meta-card p-8 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
-              <Star size={22} className="text-warning" fill="currentColor" />
+          <div className="meta-card p-6 flex flex-col items-center justify-center text-center gap-2" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
+            <div className="flex items-center justify-center gap-2 text-meta-navy-50 font-bold uppercase text-sm tracking-wider w-full">
+              <Star size={20} className="text-warning" fill="currentColor" />
               Satisfação Média
             </div>
-            <div className="text-6xl font-black text-meta-navy tracking-tighter flex items-baseline gap-2">
+            <div className="text-5xl font-black text-meta-navy tracking-tighter flex items-baseline justify-center gap-1" style={{ marginTop: '8px' }}>
               {data.media_satisfacao} <span className="text-2xl text-meta-navy-30 font-medium">/ 5</span>
-            </div>
-          </div>
-
-          {/* MASCOTE CARD */}
-          <div className="meta-card p-6 flex flex-col items-center justify-center text-center bg-meta-navy relative overflow-hidden" style={{ borderTop: '4px solid var(--meta-blue-light)' }}>
-            <Image src="/patterns/network-bottom.png" alt="" fill className="object-cover opacity-20 pointer-events-none" />
-            <div className="relative z-10 flex flex-col items-center">
-              <Image src="/mascots/rocket.png" alt="Rocket" width={100} height={100} className="mb-2 drop-shadow-2xl hover:scale-110 transition-transform" />
-              <h3 className="text-meta-white font-bold text-lg">Projetos Decolando</h3>
-              <p className="text-meta-blue-light text-sm mt-1">Estatísticas atualizadas</p>
             </div>
           </div>
 
         </div>
 
         {/* GRÁFICOS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           
           <div className="meta-card p-8">
-            <h3 className="h4 text-meta-navy mb-6 flex items-center gap-3">
+            <h3 className="h4 text-meta-navy mb-8 flex items-center justify-center gap-3">
               <Target size={24} className="text-meta-blue" />
               Modelos de Gerenciamento
             </h3>
@@ -126,15 +116,15 @@ export default function DashboardPage() {
             {metodologiasData.length === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Aguardando novos dados...</div>
             ) : (
-              <div className="h-[320px] w-full">
+              <div className="h-[320px] w-full" style={{ padding: '0 20px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={metodologiasData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={80}
-                      outerRadius={120}
+                      innerRadius={70}
+                      outerRadius={100}
                       paddingAngle={4}
                       dataKey="value"
                       label={({name, percent}) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
@@ -154,7 +144,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="meta-card p-8">
-            <h3 className="h4 text-meta-navy mb-6 flex items-center gap-3">
+            <h3 className="h4 text-meta-navy mb-8 flex items-center justify-center gap-3">
               <BarChart2 size={24} className="text-meta-blue" />
               Status do Cronograma
             </h3>
@@ -162,30 +152,30 @@ export default function DashboardPage() {
             {cronogramaData.length === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Aguardando novos dados...</div>
             ) : (
-              <div className="h-[320px] w-full">
+              <div className="h-[320px] w-full" style={{ padding: '0 20px' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={cronogramaData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
+                  <BarChart data={cronogramaData} margin={{ top: 20, right: 20, left: -20, bottom: 60 }}>
                     <XAxis 
                       dataKey="name" 
-                      tick={{fontSize: 13, fill: 'var(--meta-navy-50)', fontWeight: 500}} 
+                      tick={{fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 500}} 
                       interval={0} 
-                      angle={-20} 
+                      angle={-25} 
                       textAnchor="end"
                       axisLine={false}
                       tickLine={false}
-                      dy={10}
+                      dy={15}
                     />
                     <YAxis 
                       allowDecimals={false} 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: 'var(--meta-navy-50)', fontWeight: 500}}
+                      tick={{fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 500}}
                     />
                     <Tooltip 
                       cursor={{fill: 'rgba(0, 103, 255, 0.05)'}} 
                       contentStyle={{ borderRadius: '12px', border: '1px solid var(--meta-navy-10)', boxShadow: 'var(--shadow-md)' }}
                     />
-                    <Bar dataKey="value" fill="url(#colorBar)" radius={[6, 6, 0, 0]} maxBarSize={60} />
+                    <Bar dataKey="value" fill="url(#colorBar)" radius={[6, 6, 0, 0]} maxBarSize={50} />
                     <defs>
                       <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="var(--meta-blue-light)" stopOpacity={1}/>
