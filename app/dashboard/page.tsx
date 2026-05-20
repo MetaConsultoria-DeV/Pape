@@ -5,6 +5,7 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { ArrowLeft, BarChart2, Star, Target, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -15,7 +16,7 @@ interface DashboardData {
   status_cronograma: Record<string, number>;
 }
 
-const COLORS = ['#0067FF', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ['#2AD8FF', '#0067FF', '#22C0FF', '#F5A623', '#1FBF6A'];
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -30,18 +31,20 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="meta-bg min-h-screen flex items-center justify-center">
-        <div className="text-meta-blue font-bold text-xl animate-pulse">Carregando painel...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-meta-navy text-meta-paper" style={{ backgroundImage: "url('/patterns/network.png')", backgroundBlendMode: 'soft-light' }}>
+        <Image src="/logos/symbol.svg" alt="Meta Consultoria" width={80} height={80} className="animate-pulse mb-6 opacity-80" />
+        <div className="text-meta-blue-light font-bold text-xl uppercase tracking-widest">Carregando painel...</div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="meta-bg min-h-screen flex flex-col items-center justify-center gap-6">
-        <div className="text-meta-danger font-bold text-lg">Erro ao carregar os dados do PAPE.</div>
-        <p className="text-meta-navy-50 text-sm">Verifique se o backend está rodando e com o banco de dados atualizado.</p>
-        <Link href="/" className="btn btn-secondary mt-4">← Voltar</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-meta-navy text-meta-paper gap-6" style={{ backgroundImage: "url('/patterns/network.png')", backgroundBlendMode: 'soft-light' }}>
+        <Image src="/mascots/skull.png" alt="Erro" width={150} height={150} />
+        <div className="text-meta-danger font-bold text-2xl">Erro ao carregar os dados.</div>
+        <p className="text-meta-navy-30 text-sm">Verifique se o backend está respondendo.</p>
+        <Link href="/" className="btn bg-meta-gradient text-white mt-4 border-none hover:opacity-90 shadow-meta-glow">← Voltar</Link>
       </div>
     );
   }
@@ -50,47 +53,74 @@ export default function DashboardPage() {
   const cronogramaData = Object.entries(data.status_cronograma).map(([name, value]) => ({ name, value }));
 
   return (
-    <div className="meta-bg min-h-screen p-8 pb-20">
-      <div className="max-w-6xl mx-auto space-y-10">
-        
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pt-6 mb-10">
-          <div>
-            <h1 className="h2 text-meta-navy mb-2">Dashboard PAPE</h1>
-            <p className="text-meta-navy-50 text-lg">Acompanhamento e resultados consolidados dos projetos</p>
+    <div className="min-h-screen pb-20 relative bg-[#F4F7FF]" style={{ backgroundImage: "url('/patterns/halftone.png')", backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundBlendMode: 'multiply', opacity: 0.99 }}>
+      
+      {/* HEADER ESCURO INSTITUCIONAL */}
+      <header className="bg-meta-navy text-white shadow-meta-lg relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "url('/patterns/triangles.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+        <div className="max-w-7xl mx-auto px-8 py-8 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex items-center gap-6">
+            <Image src="/logos/wordmark-dark.png" alt="Meta Consultoria" width={180} height={40} className="object-contain" />
+            <div className="h-10 w-px bg-white/20 hidden sm:block"></div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tight">Dashboard <span className="text-meta-blue-light">PAPE</span></h1>
+              <p className="text-meta-navy-30 text-sm font-medium tracking-wide uppercase mt-1">Plano de Acompanhamento de Projetos Externos</p>
+            </div>
           </div>
-          <Link href="/" className="btn btn-secondary flex items-center gap-2">
+          <Link href="/" className="btn bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm flex items-center gap-2 transition-all">
             <ArrowLeft size={18} />
-            Voltar ao Formulário
+            Voltar
           </Link>
-        </header>
+        </div>
+      </header>
 
-        {/* Cards de KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="meta-card p-8 flex flex-col gap-4 border-l-4" style={{borderLeftColor: 'var(--meta-blue)'}}>
-            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
-              <ClipboardList size={22} className="text-meta-blue" />
-              Projetos Avaliados
+      <div className="max-w-7xl mx-auto px-8 mt-12 space-y-10 relative z-10">
+        
+        {/* CARDS DE KPIS */}
+        <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+          
+          {/* DESTAQUE COM MASCOTE */}
+          <div className="lg:w-1/3 rounded-meta-xl overflow-hidden relative shadow-meta-lg text-white" style={{ background: 'var(--meta-gradient)' }}>
+            <div className="absolute top-0 right-0 p-4 opacity-30">
+              <Image src="/patterns/waves.png" alt="waves" width={200} height={200} className="object-cover" />
             </div>
-            <div className="text-5xl font-black text-meta-navy">{data.total_projetos}</div>
+            <div className="p-8 h-full flex flex-col relative z-10">
+              <div className="eyebrow text-white/80 mb-2">Visão Geral</div>
+              <h2 className="text-3xl font-black leading-tight mb-4">Como estão nossos projetos?</h2>
+              <div className="mt-auto self-end pt-4">
+                <Image src="/mascots/rocket.png" alt="Rocket Mascot" width={140} height={140} className="drop-shadow-2xl" />
+              </div>
+            </div>
           </div>
 
-          <div className="meta-card p-8 flex flex-col gap-4 border-l-4 border-yellow-400">
-            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
-              <Star size={22} className="text-yellow-400" fill="currentColor" />
-              Satisfação Média
+          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-meta-xl p-8 shadow-meta-md flex flex-col justify-center border-l-4 border-meta-blue">
+              <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider mb-4">
+                <ClipboardList size={22} className="text-meta-blue" />
+                Projetos Avaliados
+              </div>
+              <div className="text-6xl font-black text-meta-navy tracking-tighter" style={{ background: 'var(--meta-gradient-h)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {data.total_projetos}
+              </div>
             </div>
-            <div className="text-5xl font-black text-meta-navy">
-              {data.media_satisfacao} <span className="text-2xl text-meta-navy-50 font-medium">/ 5</span>
+
+            <div className="bg-white rounded-meta-xl p-8 shadow-meta-md flex flex-col justify-center border-l-4 border-warning">
+              <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider mb-4">
+                <Star size={22} className="text-warning" fill="currentColor" />
+                Satisfação Média
+              </div>
+              <div className="text-6xl font-black text-meta-navy tracking-tighter flex items-baseline gap-2">
+                {data.media_satisfacao} <span className="text-2xl text-meta-navy-30 font-medium">/ 5</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Gráficos */}
+        {/* GRÁFICOS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Metodologias - Gráfico de Pizza */}
-          <div className="meta-card p-8">
-            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-gray-100 pb-4">
+          <div className="bg-white rounded-meta-xl p-8 shadow-meta-md">
+            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-meta-navy-10 pb-4">
               <Target size={24} className="text-meta-blue" />
               Modelos de Gerenciamento
             </h3>
@@ -116,7 +146,7 @@ export default function DashboardPage() {
                       ))}
                     </Pie>
                     <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--meta-lg)' }}
                       itemStyle={{ fontWeight: 'bold' }}
                     />
                   </PieChart>
@@ -125,9 +155,8 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Cronograma - Gráfico de Barras */}
-          <div className="meta-card p-8">
-            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-gray-100 pb-4">
+          <div className="bg-white rounded-meta-xl p-8 shadow-meta-md">
+            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-meta-navy-10 pb-4">
               <BarChart2 size={24} className="text-meta-blue" />
               Status do Cronograma
             </h3>
@@ -140,7 +169,7 @@ export default function DashboardPage() {
                   <BarChart data={cronogramaData} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
                     <XAxis 
                       dataKey="name" 
-                      tick={{fontSize: 13, fill: 'var(--meta-navy-50)'}} 
+                      tick={{fontSize: 13, fill: 'var(--meta-navy-50)', fontWeight: 500}} 
                       interval={0} 
                       angle={-20} 
                       textAnchor="end"
@@ -152,13 +181,19 @@ export default function DashboardPage() {
                       allowDecimals={false} 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: 'var(--meta-navy-50)'}}
+                      tick={{fill: 'var(--meta-navy-50)', fontWeight: 500}}
                     />
                     <Tooltip 
                       cursor={{fill: 'rgba(0, 103, 255, 0.05)'}} 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--meta-lg)' }}
                     />
-                    <Bar dataKey="value" fill="var(--meta-blue)" radius={[6, 6, 0, 0]} maxBarSize={60} />
+                    <Bar dataKey="value" fill="url(#colorUv)" radius={[6, 6, 0, 0]} maxBarSize={60} />
+                    <defs>
+                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--meta-blue-light)" stopOpacity={1}/>
+                        <stop offset="95%" stopColor="var(--meta-blue)" stopOpacity={1}/>
+                      </linearGradient>
+                    </defs>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

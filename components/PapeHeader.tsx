@@ -14,10 +14,7 @@ export default function PapeHeader({ actionHref, actionLabel, dashboardHref, das
       <div className="meta-header-inner">
         <div className="meta-header-top">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <MetaSymbol size={48} />
-            <div className="eyebrow" style={{ color: 'rgba(255,255,255,0.85)' }}>
-              Meta Consultoria
-            </div>
+            <img src="/logos/wordmark-dark.png" alt="Meta Consultoria" style={{ height: '36px' }} />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

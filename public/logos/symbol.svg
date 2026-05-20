@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" fill="none">
+  <defs>
+    <linearGradient id="metaGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2AD8FF"></stop>
+      <stop offset="100%" stop-color="#0067FF"></stop>
+    </linearGradient>
+    <linearGradient id="metaGradBack" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22C0FF"></stop>
+      <stop offset="100%" stop-color="#0067FF"></stop>
+    </linearGradient>
+  </defs>
+
+  
+  <path d="M 14 8 L 92 8 L 53 80 Z M 30 18 L 76 18 L 53 60 Z" fill="url(#metaGradBack)" fill-rule="evenodd" opacity="0.85"></path>
+
+  
+  <path d="M 8 4 L 86 4 L 47 76 Z M 24 14 L 70 14 L 47 56 Z" fill="url(#metaGrad)" fill-rule="evenodd"></path>
+</svg>
