@@ -31,20 +31,19 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-meta-navy text-meta-paper" style={{ backgroundImage: "url('/patterns/network.png')", backgroundBlendMode: 'soft-light' }}>
-        <Image src="/logos/symbol.svg" alt="Meta Consultoria" width={80} height={80} className="animate-pulse mb-6 opacity-80" />
-        <div className="text-meta-blue-light font-bold text-xl uppercase tracking-widest">Carregando painel...</div>
+      <div className="meta-bg min-h-screen flex items-center justify-center">
+        <Image src="/logos/symbol.svg" alt="Meta Consultoria" width={80} height={80} className="animate-pulse opacity-80" />
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-meta-navy text-meta-paper gap-6" style={{ backgroundImage: "url('/patterns/network.png')", backgroundBlendMode: 'soft-light' }}>
+      <div className="meta-bg min-h-screen flex flex-col items-center justify-center gap-6 text-center px-4">
         <Image src="/mascots/skull.png" alt="Erro" width={150} height={150} />
-        <div className="text-meta-danger font-bold text-2xl">Erro ao carregar os dados.</div>
-        <p className="text-meta-navy-30 text-sm">Verifique se o backend está respondendo.</p>
-        <Link href="/" className="btn bg-meta-gradient text-white mt-4 border-none hover:opacity-90 shadow-meta-glow">← Voltar</Link>
+        <div className="text-meta-danger font-bold text-2xl h4">Erro ao carregar os dados.</div>
+        <p className="text-meta-navy-50 text-sm max-w-md">Não conseguimos nos conectar à API na VPS. Verifique se o servidor está rodando.</p>
+        <Link href="/" className="btn btn-primary mt-4">← Voltar para o Início</Link>
       </div>
     );
   }
@@ -53,80 +52,79 @@ export default function DashboardPage() {
   const cronogramaData = Object.entries(data.status_cronograma).map(([name, value]) => ({ name, value }));
 
   return (
-    <div className="min-h-screen pb-20 relative bg-[#F4F7FF]" style={{ backgroundImage: "url('/patterns/halftone.png')", backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundBlendMode: 'multiply', opacity: 0.99 }}>
+    <div className="meta-bg min-h-screen pb-20">
       
-      {/* HEADER ESCURO INSTITUCIONAL */}
-      <header className="bg-meta-navy text-white shadow-meta-lg relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "url('/patterns/triangles.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-        <div className="max-w-7xl mx-auto px-8 py-8 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div className="flex items-center gap-6">
-            <Image src="/logos/wordmark-dark.png" alt="Meta Consultoria" width={180} height={40} className="object-contain" />
-            <div className="h-10 w-px bg-white/20 hidden sm:block"></div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight">Dashboard <span className="text-meta-blue-light">PAPE</span></h1>
-              <p className="text-meta-navy-30 text-sm font-medium tracking-wide uppercase mt-1">Plano de Acompanhamento de Projetos Externos</p>
+      {/* HEADER PADRÃO DA META */}
+      <header className="meta-header">
+        <div className="meta-header-inner">
+          <div className="meta-header-top">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <img src="/logos/wordmark-light.png" alt="Meta Consultoria" style={{ height: '36px' }} />
             </div>
+            <Link href="/" className="meta-header-action">
+              <ArrowLeft size={18} className="mr-2" />
+              Voltar ao Formulário
+            </Link>
           </div>
-          <Link href="/" className="btn bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm flex items-center gap-2 transition-all">
-            <ArrowLeft size={18} />
-            Voltar
-          </Link>
+          
+          <h1 className="h1" style={{ color: 'white', fontSize: 56, marginBottom: 12, letterSpacing: '-0.03em' }}>
+            Dashboard PAPE
+          </h1>
+          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.92)', maxWidth: 560, lineHeight: 1.5, fontWeight: 500 }}>
+            Visão geral e resultados em tempo real dos projetos acompanhados.
+          </p>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-8 mt-12 space-y-10 relative z-10">
+      {/* CONTEÚDO PRINCIPAL (Flutuando sobre o header) */}
+      <main className="max-w-6xl mx-auto px-6" style={{ marginTop: '-40px', position: 'relative', zIndex: 10 }}>
         
-        {/* CARDS DE KPIS */}
-        <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+        {/* CARDS DE DESTAQUE */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           
-          {/* DESTAQUE COM MASCOTE */}
-          <div className="lg:w-1/3 rounded-meta-xl overflow-hidden relative shadow-meta-lg text-white" style={{ background: 'var(--meta-gradient)' }}>
-            <div className="absolute top-0 right-0 p-4 opacity-30">
-              <Image src="/patterns/waves.png" alt="waves" width={200} height={200} className="object-cover" />
+          <div className="meta-card p-8 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
+              <ClipboardList size={22} className="text-meta-blue" />
+              Projetos Avaliados
             </div>
-            <div className="p-8 h-full flex flex-col relative z-10">
-              <div className="eyebrow text-white/80 mb-2">Visão Geral</div>
-              <h2 className="text-3xl font-black leading-tight mb-4">Como estão nossos projetos?</h2>
-              <div className="mt-auto self-end pt-4">
-                <Image src="/mascots/rocket.png" alt="Rocket Mascot" width={140} height={140} className="drop-shadow-2xl" />
-              </div>
+            <div className="text-6xl font-black text-meta-navy tracking-tighter text-gradient">
+              {data.total_projetos}
             </div>
           </div>
 
-          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-meta-xl p-8 shadow-meta-md flex flex-col justify-center border-l-4 border-meta-blue">
-              <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider mb-4">
-                <ClipboardList size={22} className="text-meta-blue" />
-                Projetos Avaliados
-              </div>
-              <div className="text-6xl font-black text-meta-navy tracking-tighter" style={{ background: 'var(--meta-gradient-h)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                {data.total_projetos}
-              </div>
+          <div className="meta-card p-8 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider">
+              <Star size={22} className="text-warning" fill="currentColor" />
+              Satisfação Média
             </div>
-
-            <div className="bg-white rounded-meta-xl p-8 shadow-meta-md flex flex-col justify-center border-l-4 border-warning">
-              <div className="flex items-center gap-3 text-meta-navy-50 font-bold uppercase text-sm tracking-wider mb-4">
-                <Star size={22} className="text-warning" fill="currentColor" />
-                Satisfação Média
-              </div>
-              <div className="text-6xl font-black text-meta-navy tracking-tighter flex items-baseline gap-2">
-                {data.media_satisfacao} <span className="text-2xl text-meta-navy-30 font-medium">/ 5</span>
-              </div>
+            <div className="text-6xl font-black text-meta-navy tracking-tighter flex items-baseline gap-2">
+              {data.media_satisfacao} <span className="text-2xl text-meta-navy-30 font-medium">/ 5</span>
             </div>
           </div>
+
+          {/* MASCOTE CARD */}
+          <div className="meta-card p-6 flex flex-col items-center justify-center text-center bg-meta-navy relative overflow-hidden" style={{ borderTop: '4px solid var(--meta-blue-light)' }}>
+            <Image src="/patterns/network-bottom.png" alt="" fill className="object-cover opacity-20 pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center">
+              <Image src="/mascots/rocket.png" alt="Rocket" width={100} height={100} className="mb-2 drop-shadow-2xl hover:scale-110 transition-transform" />
+              <h3 className="text-meta-white font-bold text-lg">Projetos Decolando</h3>
+              <p className="text-meta-blue-light text-sm mt-1">Estatísticas atualizadas</p>
+            </div>
+          </div>
+
         </div>
 
         {/* GRÁFICOS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          <div className="bg-white rounded-meta-xl p-8 shadow-meta-md">
-            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-meta-navy-10 pb-4">
+          <div className="meta-card p-8">
+            <h3 className="h4 text-meta-navy mb-6 flex items-center gap-3">
               <Target size={24} className="text-meta-blue" />
               Modelos de Gerenciamento
             </h3>
             
             {metodologiasData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Sem dados suficientes</div>
+              <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Aguardando novos dados...</div>
             ) : (
               <div className="h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -146,7 +144,7 @@ export default function DashboardPage() {
                       ))}
                     </Pie>
                     <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--meta-lg)' }}
+                      contentStyle={{ borderRadius: '12px', border: '1px solid var(--meta-navy-10)', boxShadow: 'var(--shadow-md)' }}
                       itemStyle={{ fontWeight: 'bold' }}
                     />
                   </PieChart>
@@ -155,14 +153,14 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-meta-xl p-8 shadow-meta-md">
-            <h3 className="text-xl font-bold text-meta-navy mb-8 flex items-center gap-3 border-b border-meta-navy-10 pb-4">
+          <div className="meta-card p-8">
+            <h3 className="h4 text-meta-navy mb-6 flex items-center gap-3">
               <BarChart2 size={24} className="text-meta-blue" />
               Status do Cronograma
             </h3>
             
             {cronogramaData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Sem dados suficientes</div>
+              <div className="h-[300px] flex items-center justify-center text-meta-navy-50">Aguardando novos dados...</div>
             ) : (
               <div className="h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -185,13 +183,13 @@ export default function DashboardPage() {
                     />
                     <Tooltip 
                       cursor={{fill: 'rgba(0, 103, 255, 0.05)'}} 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--meta-lg)' }}
+                      contentStyle={{ borderRadius: '12px', border: '1px solid var(--meta-navy-10)', boxShadow: 'var(--shadow-md)' }}
                     />
-                    <Bar dataKey="value" fill="url(#colorUv)" radius={[6, 6, 0, 0]} maxBarSize={60} />
+                    <Bar dataKey="value" fill="url(#colorBar)" radius={[6, 6, 0, 0]} maxBarSize={60} />
                     <defs>
-                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--meta-blue-light)" stopOpacity={1}/>
-                        <stop offset="95%" stopColor="var(--meta-blue)" stopOpacity={1}/>
+                      <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--meta-blue-light)" stopOpacity={1}/>
+                        <stop offset="100%" stopColor="var(--meta-blue)" stopOpacity={1}/>
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -201,7 +199,7 @@ export default function DashboardPage() {
           </div>
 
         </div>
-      </div>
+      </main>
     </div>
   );
 }
