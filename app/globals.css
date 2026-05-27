@@ -1017,6 +1017,7 @@ label {
   font-family: var(--font-montserrat), system-ui, sans-serif;
   font-size: 13px;
   font-weight: 850;
+  text-decoration: none;
   cursor: not-allowed;
 }
 
@@ -1053,6 +1054,17 @@ label {
   background: linear-gradient(135deg, #102d42, var(--meta-navy));
 }
 
+.dashboard-client-hero::before {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(0, 103, 255, 0.13), transparent 32%),
+    radial-gradient(circle at 100% 0%, rgba(31, 191, 106, 0.12), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(244, 247, 255, 0.78));
+}
+
+.dashboard-client-summary {
+  background: linear-gradient(135deg, var(--meta-blue), var(--meta-navy));
+}
+
 .dashboard-overview-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -1087,6 +1099,10 @@ label {
 
 .dashboard-method-attention {
   min-width: 760px;
+}
+
+.dashboard-client-impact {
+  min-width: 820px;
 }
 
 .dashboard-table th,
