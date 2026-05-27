@@ -69,6 +69,27 @@ interface RiskDashboard {
   capacitacao_equipe: ChartDatum[];
 }
 
+interface MethodAttention {
+  projeto: string;
+  indicador: string;
+  nota: number;
+  modelo: string;
+}
+
+interface MethodScopeDashboard {
+  retrabalho: ChartDatum[];
+  variacao_escopo: ChartDatum[];
+  capacitacao_equipe: ChartDatum[];
+  eficacia_metodologia: ChartDatum[];
+  pontos_atencao: MethodAttention[];
+  medias: {
+    retrabalho: number;
+    variacao_escopo: number;
+    capacitacao_equipe: number;
+    eficacia_metodologia: number;
+  };
+}
+
 interface DashboardData {
   total_projetos: number;
   total_respostas?: number;
@@ -79,12 +100,15 @@ interface DashboardData {
   motivos_atraso?: ChartDatum[];
   projetos_atuais?: DashboardProject[];
   riscos?: RiskDashboard;
+  metodo_escopo?: MethodScopeDashboard;
 }
 
 type ChartDatum = {
   name: string;
   value: number;
 };
+
+type DashboardSection = 'overview' | 'risks' | 'method_scope';
 
 type TooltipPayload = {
   color?: string;
@@ -156,6 +180,19 @@ function getStatusVariant(status: string) {
     return 'success';
   }
   return 'neutral';
+}
+
+function getScoreTone(value: number): 'default' | 'warning' | 'danger' | 'success' {
+  if (value === 0) {
+    return 'default';
+  }
+  if (value <= 2) {
+    return 'danger';
+  }
+  if (value <= 3) {
+    return 'warning';
+  }
+  return 'success';
 }
 
 function ChartTooltip({
@@ -613,10 +650,202 @@ function RisksSection({ data }: { data: DashboardData }) {
   );
 }
 
+function ScoreBadge({ value }: { value: number }) {
+  const tone = getScoreTone(value);
+
+  return (
+    <span className={`dashboard-score-badge dashboard-score-badge-${tone}`}>
+      {formatNumber(value)}
+    </span>
+  );
+}
+
+function MethodAttentionTable({ items }: { items: MethodAttention[] }) {
+  if (!items.length) {
+    return <EmptyChart message="Nenhum indicador de método ou escopo com nota crítica." />;
+  }
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-method-attention">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Indicador</th>
+            <th>Modelo</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.slice(0, 10).map((item) => (
+            <tr key={`${item.projeto}-${item.indicador}-${item.nota}`}>
+              <td>
+                <strong>{item.projeto}</strong>
+              </td>
+              <td>{item.indicador}</td>
+              <td>{item.modelo}</td>
+              <td>
+                <ScoreBadge value={item.nota} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function MethodScopeSection({ data }: { data: DashboardData }) {
+  const metodo = data.metodo_escopo ?? {
+    retrabalho: [],
+    variacao_escopo: [],
+    capacitacao_equipe: [],
+    eficacia_metodologia: [],
+    pontos_atencao: [],
+    medias: {
+      retrabalho: 0,
+      variacao_escopo: 0,
+      capacitacao_equipe: 0,
+      eficacia_metodologia: 0,
+    },
+  };
+
+  const mediaValues = Object.values(metodo.medias).filter((value) => value > 0);
+  const saudeMetodo = mediaValues.length
+    ? mediaValues.reduce((sum, value) => sum + value, 0) / mediaValues.length
+    : 0;
+  const retrabalhoCritico = metodo.retrabalho.filter((item) => item.value <= 2).length;
+  const escopoCritico = metodo.variacao_escopo.filter((item) => item.value <= 2).length;
+
+  return (
+    <>
+      <section className="dashboard-hero-panel dashboard-method-hero" aria-label="Resumo de método e escopo">
+        <div>
+          <span className="eyebrow text-meta-blue">Método e Escopo</span>
+          <h2>Execução, clareza e aderência metodológica</h2>
+          <p>
+            Esta visão recupera os painéis de retrabalho, variação de escopo,
+            capacitação da equipe e eficácia da metodologia para apontar onde o
+            projeto precisa de alinhamento antes de virar atraso.
+          </p>
+        </div>
+
+        <div className="dashboard-satisfaction dashboard-method-summary" aria-label="Saúde média de método e escopo">
+          <div>
+            <span>Saúde média</span>
+            <strong>{formatNumber(saudeMetodo)}</strong>
+          </div>
+          <div className="dashboard-score-track" aria-hidden="true">
+            <span style={{ width: `${Math.min(Math.max((saudeMetodo / 5) * 100, 0), 100)}%` }} />
+          </div>
+          <small>{formatNumber(metodo.pontos_atencao.length)} pontos críticos no radar</small>
+        </div>
+      </section>
+
+      <section className="dashboard-stats-grid" aria-label="Indicadores de método e escopo">
+        <StatCard
+          icon={TrendingUp}
+          label="Retrabalho médio"
+          value={formatNumber(metodo.medias.retrabalho)}
+          suffix="/5"
+          detail="Quanto menor a nota, maior a atenção ao retrabalho."
+          tone={getScoreTone(metodo.medias.retrabalho)}
+          featured
+        />
+        <StatCard
+          icon={Target}
+          label="Escopo médio"
+          value={formatNumber(metodo.medias.variacao_escopo)}
+          suffix="/5"
+          detail="Mede a eficácia do escopo definido e sua variação."
+          tone={getScoreTone(metodo.medias.variacao_escopo)}
+        />
+        <StatCard
+          icon={Gauge}
+          label="Metodologia média"
+          value={formatNumber(metodo.medias.eficacia_metodologia)}
+          suffix="/5"
+          detail="Aderência percebida da metodologia usada no projeto."
+          tone={getScoreTone(metodo.medias.eficacia_metodologia)}
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label="Capacitação média"
+          value={formatNumber(metodo.medias.capacitacao_equipe)}
+          suffix="/5"
+          detail="Preparo da equipe para sustentar a execução."
+          tone={getScoreTone(metodo.medias.capacitacao_equipe)}
+        />
+        <StatCard
+          icon={AlertTriangle}
+          label="Alertas críticos"
+          value={formatNumber(metodo.pontos_atencao.length)}
+          detail={`${formatNumber(retrabalhoCritico)} em retrabalho · ${formatNumber(escopoCritico)} em escopo.`}
+          tone={metodo.pontos_atencao.length ? 'warning' : 'success'}
+        />
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={TrendingUp}
+            eyebrow="Retrabalho"
+            title="Retrabalho por projeto"
+            description="Quanto menor a nota, pior: os menores valores aparecem primeiro."
+          />
+          <ScoreChart data={metodo.retrabalho} color="var(--meta-danger)" />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Target}
+            eyebrow="Escopo"
+            title="Eficácia do escopo definido"
+            description="Leitura da variação de escopo nos projetos tradicional e híbrido."
+          />
+          <ScoreChart data={metodo.variacao_escopo} color="var(--meta-warning)" />
+        </div>
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={CheckCircle2}
+            eyebrow="Equipe"
+            title="Capacitação da equipe por projeto"
+            description="Mostra onde a execução pode precisar de apoio técnico."
+          />
+          <ScoreChart data={metodo.capacitacao_equipe} color="var(--meta-success)" />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Gauge}
+            eyebrow="Metodologia"
+            title="Eficácia da metodologia por projeto"
+            description="Ajuda a decidir onde ajustar ritos, cadência ou abordagem."
+          />
+          <ScoreChart data={metodo.eficacia_metodologia} />
+        </div>
+      </section>
+
+      <section className="dashboard-card dashboard-project-card">
+        <SectionHeader
+          icon={ClipboardList}
+          eyebrow="Atenção"
+          title="Pontos críticos de método e escopo"
+          description="Indicadores com nota 1 ou 2, priorizados para conversa de acompanhamento."
+        />
+        <MethodAttentionTable items={metodo.pontos_atencao} />
+      </section>
+    </>
+  );
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<'overview' | 'risks'>('overview');
+  const [activeSection, setActiveSection] = useState<DashboardSection>('overview');
 
   useEffect(() => {
     axios
@@ -710,7 +939,15 @@ export default function DashboardPage() {
             <AlertTriangle size={18} aria-hidden />
             Riscos
           </button>
-          {['Método e Escopo', 'Cliente e Orientação', 'Ágil', 'Detalhe'].map((label) => (
+          <button
+            className={`dashboard-tab ${activeSection === 'method_scope' ? 'dashboard-tab-active' : ''}`}
+            type="button"
+            onClick={() => setActiveSection('method_scope')}
+          >
+            <Target size={18} aria-hidden />
+            Método e Escopo
+          </button>
+          {['Cliente e Orientação', 'Ágil', 'Detalhe'].map((label) => (
             <button className="dashboard-tab" type="button" disabled key={label}>
               {label}
             </button>
@@ -959,8 +1196,10 @@ export default function DashboardPage() {
           </div>
         </section>
           </>
-        ) : (
+        ) : activeSection === 'risks' ? (
           <RisksSection data={data} />
+        ) : (
+          <MethodScopeSection data={data} />
         )}
       </main>
     </div>

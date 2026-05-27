@@ -1042,6 +1042,17 @@ label {
   background: linear-gradient(135deg, var(--meta-navy), var(--meta-navy-90));
 }
 
+.dashboard-method-hero::before {
+  background:
+    radial-gradient(circle at 6% 0%, rgba(31, 191, 106, 0.14), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(42, 216, 255, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(244, 247, 255, 0.78));
+}
+
+.dashboard-method-summary {
+  background: linear-gradient(135deg, #102d42, var(--meta-navy));
+}
+
 .dashboard-overview-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -1072,6 +1083,10 @@ label {
 
 .dashboard-risk-projects {
   min-width: 720px;
+}
+
+.dashboard-method-attention {
+  min-width: 760px;
 }
 
 .dashboard-table th,
@@ -1144,6 +1159,39 @@ label {
 }
 
 .dashboard-status-neutral {
+  color: var(--meta-blue);
+  background: rgba(0, 103, 255, 0.1);
+}
+
+.dashboard-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.dashboard-score-badge-danger {
+  color: var(--meta-danger);
+  background: rgba(229, 72, 77, 0.1);
+}
+
+.dashboard-score-badge-warning {
+  color: #9b6200;
+  background: rgba(245, 166, 35, 0.16);
+}
+
+.dashboard-score-badge-success {
+  color: #087a40;
+  background: rgba(31, 191, 106, 0.12);
+}
+
+.dashboard-score-badge-default {
   color: var(--meta-blue);
   background: rgba(0, 103, 255, 0.1);
 }
