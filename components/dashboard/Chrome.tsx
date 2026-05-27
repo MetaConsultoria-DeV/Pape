@@ -73,6 +73,23 @@ export function ErrorState() {
   );
 }
 
+export function DashboardDataError() {
+  return (
+    <section className="dashboard-card dashboard-project-card" aria-label="Erro ao carregar dados do dashboard">
+      <SectionHeader
+        icon={AlertTriangle}
+        eyebrow="Conexão"
+        title="Não conseguimos carregar os dados."
+        description="A navegação do dashboard continua disponível, mas os indicadores dependem da API do PAPE estar respondendo."
+      />
+      <div className="dashboard-empty">
+        <AlertTriangle size={24} aria-hidden="true" />
+        <span>Verifique o servidor da API e atualize a página.</span>
+      </div>
+    </section>
+  );
+}
+
 export function DashboardShell({
   activeSlug,
   children,

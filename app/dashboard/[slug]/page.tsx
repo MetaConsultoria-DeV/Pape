@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { DashboardShell, ErrorState } from '@/components/dashboard/Chrome';
+import { DashboardDataError, DashboardShell } from '@/components/dashboard/Chrome';
 import { getDashboardSection, isEnabledDashboardSlug } from '@/components/dashboard/config';
 import { getDashboardData } from '@/components/dashboard/data';
 import { DashboardSectionContent } from '@/components/dashboard/Sections';
@@ -39,7 +39,11 @@ export default async function DashboardSlugPage({ params }: DashboardRouteProps)
   const data = await getDashboardData();
 
   if (!data) {
-    return <ErrorState />;
+    return (
+      <DashboardShell activeSlug={slug}>
+        <DashboardDataError />
+      </DashboardShell>
+    );
   }
 
   return (

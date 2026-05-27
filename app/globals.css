@@ -1018,18 +1018,17 @@ label {
   font-size: 13px;
   font-weight: 850;
   text-decoration: none;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
-.dashboard-tab:not(:disabled) {
-  cursor: pointer;
+.dashboard-tab:disabled {
+  cursor: not-allowed;
 }
 
 .dashboard-tab-active {
   background: var(--meta-gradient);
   color: var(--meta-white);
   box-shadow: var(--shadow-blue);
-  cursor: default;
 }
 
 .dashboard-risk-hero::before {
