@@ -1020,11 +1020,26 @@ label {
   cursor: not-allowed;
 }
 
+.dashboard-tab:not(:disabled) {
+  cursor: pointer;
+}
+
 .dashboard-tab-active {
   background: var(--meta-gradient);
   color: var(--meta-white);
   box-shadow: var(--shadow-blue);
   cursor: default;
+}
+
+.dashboard-risk-hero::before {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(245, 166, 35, 0.16), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(229, 72, 77, 0.1), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(244, 247, 255, 0.76));
+}
+
+.dashboard-risk-summary {
+  background: linear-gradient(135deg, var(--meta-navy), var(--meta-navy-90));
 }
 
 .dashboard-overview-grid {
@@ -1049,6 +1064,14 @@ label {
   min-width: 920px;
   border-collapse: collapse;
   background: rgba(255, 255, 255, 0.62);
+}
+
+.dashboard-risk-matrix {
+  min-width: 760px;
+}
+
+.dashboard-risk-projects {
+  min-width: 720px;
 }
 
 .dashboard-table th,

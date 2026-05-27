@@ -48,6 +48,27 @@ interface DashboardProject {
   impacto_cliente?: string | null;
 }
 
+interface RiskMatrixRow {
+  motivo: string;
+  total: number;
+  coordenacoes: Record<string, number>;
+}
+
+interface RiskProject {
+  projeto: string;
+  status: string;
+  motivos: string[];
+  coordenacao: string;
+}
+
+interface RiskDashboard {
+  motivos_por_coordenacao: RiskMatrixRow[];
+  projetos_em_risco: RiskProject[];
+  suficiencia_orcamento: ChartDatum[];
+  comunicacao_cliente: ChartDatum[];
+  capacitacao_equipe: ChartDatum[];
+}
+
 interface DashboardData {
   total_projetos: number;
   total_respostas?: number;
@@ -57,6 +78,7 @@ interface DashboardData {
   pct_conclusao?: Record<string, number>;
   motivos_atraso?: ChartDatum[];
   projetos_atuais?: DashboardProject[];
+  riscos?: RiskDashboard;
 }
 
 type ChartDatum = {
@@ -337,9 +359,264 @@ function ProjectTable({ projects }: { projects: DashboardProject[] }) {
   );
 }
 
+function RiskMatrixTable({ rows }: { rows: RiskMatrixRow[] }) {
+  if (!rows.length) {
+    return <EmptyChart message="Nenhum motivo de risco/atraso registrado por coordenação." />;
+  }
+
+  const coordenacoes = Array.from(
+    new Set(rows.flatMap((row) => Object.keys(row.coordenacoes))),
+  ).slice(0, 5);
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-risk-matrix">
+        <thead>
+          <tr>
+            <th>Motivo selecionado</th>
+            {coordenacoes.map((coordenacao) => (
+              <th key={coordenacao}>{coordenacao}</th>
+            ))}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.slice(0, 7).map((row) => (
+            <tr key={row.motivo}>
+              <td>
+                <strong>{row.motivo}</strong>
+              </td>
+              {coordenacoes.map((coordenacao) => (
+                <td key={coordenacao}>{row.coordenacoes[coordenacao] ?? 0}</td>
+              ))}
+              <td>
+                <strong>{row.total}</strong>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ScoreChart({
+  data,
+  color = 'var(--meta-blue)',
+}: {
+  data: ChartDatum[];
+  color?: string;
+}) {
+  if (!data.length) {
+    return <EmptyChart message="Ainda não há respostas suficientes para este indicador." />;
+  }
+
+  return (
+    <div className="dashboard-horizontal-chart dashboard-horizontal-chart-small">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data.slice(0, 7)}
+          layout="vertical"
+          margin={{ top: 8, right: 18, left: 18, bottom: 8 }}
+        >
+          <CartesianGrid horizontal={false} stroke="rgba(107, 114, 153, 0.24)" />
+          <XAxis
+            type="number"
+            domain={[0, 5]}
+            tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={142}
+            tick={{ fontSize: 12, fill: 'var(--meta-navy)', fontWeight: 700 }}
+          />
+          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0, 103, 255, 0.06)' }} />
+          <Bar dataKey="value" fill={color} radius={[0, 8, 8, 0]} maxBarSize={32} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function RiskProjectsTable({ projects }: { projects: RiskProject[] }) {
+  if (!projects.length) {
+    return <EmptyChart message="Nenhum projeto em risco ou atrasado no status atual." />;
+  }
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-risk-projects">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Status</th>
+            <th>Coordenação</th>
+            <th>Motivos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.slice(0, 10).map((project) => (
+            <tr key={`${project.projeto}-${project.status}`}>
+              <td>
+                <strong>{project.projeto}</strong>
+              </td>
+              <td>
+                <StatusBadge status={project.status} />
+              </td>
+              <td>{project.coordenacao}</td>
+              <td>
+                <span>{project.motivos.length ? project.motivos.join(', ') : 'Sem motivo informado'}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RisksSection({ data }: { data: DashboardData }) {
+  const riscos = data.riscos ?? {
+    motivos_por_coordenacao: [],
+    projetos_em_risco: [],
+    suficiencia_orcamento: [],
+    comunicacao_cliente: [],
+    capacitacao_equipe: [],
+  };
+
+  const projetosAtrasados = getStatusCount(data, 'Atrasado');
+  const projetosComRisco = getStatusCount(data, 'Com risco de atraso');
+  const motivosCriticos = riscos.motivos_por_coordenacao.reduce(
+    (sum, row) => sum + row.total,
+    0,
+  );
+  const orcamentoCritico = riscos.suficiencia_orcamento.filter((item) => item.value <= 2).length;
+  const comunicacaoCritica = riscos.comunicacao_cliente.filter((item) => item.value <= 2).length;
+
+  return (
+    <>
+      <section className="dashboard-hero-panel dashboard-risk-hero" aria-label="Resumo de riscos">
+        <div>
+          <span className="eyebrow text-meta-blue">Riscos</span>
+          <h2>Onde a carteira precisa de atenção</h2>
+          <p>
+            Esta visão reaproveita a lógica do Power BI para entender atrasos, riscos
+            declarados, gargalos por coordenação e sinais baixos de orçamento,
+            comunicação e capacidade técnica.
+          </p>
+        </div>
+
+        <div className="dashboard-satisfaction dashboard-risk-summary" aria-label="Projetos em atenção">
+          <div>
+            <span>Projetos em atenção</span>
+            <strong>{formatNumber(projetosAtrasados + projetosComRisco)}</strong>
+          </div>
+          <small>
+            {formatNumber(projetosAtrasados)} atrasados · {formatNumber(projetosComRisco)} com risco
+          </small>
+        </div>
+      </section>
+
+      <section className="dashboard-stats-grid" aria-label="Indicadores de risco">
+        <StatCard
+          icon={AlertTriangle}
+          label="Projetos atrasados"
+          value={formatNumber(projetosAtrasados)}
+          detail="Status atual marcado como atrasado."
+          tone="danger"
+          featured
+        />
+        <StatCard
+          icon={Clock3}
+          label="Projetos com risco"
+          value={formatNumber(projetosComRisco)}
+          detail="Status atual com risco de atraso."
+          tone="warning"
+        />
+        <StatCard
+          icon={BarChart2}
+          label="Motivos críticos"
+          value={formatNumber(motivosCriticos)}
+          detail="Ocorrências de motivos em projetos em atenção."
+        />
+        <StatCard
+          icon={Gauge}
+          label="Orçamento baixo"
+          value={formatNumber(orcamentoCritico)}
+          detail="Projetos com suficiência de orçamento até 2."
+          tone="warning"
+        />
+        <StatCard
+          icon={Activity}
+          label="Comunicação baixa"
+          value={formatNumber(comunicacaoCritica)}
+          detail="Projetos com comunicação efetiva até 2."
+          tone="danger"
+        />
+      </section>
+
+      <section className="dashboard-card dashboard-project-card">
+        <SectionHeader
+          icon={AlertTriangle}
+          eyebrow="Matriz"
+          title="Motivos dos riscos por coordenação"
+          description="Leitura cruzada dos motivos selecionados com as coordenações envolvidas."
+        />
+        <RiskMatrixTable rows={riscos.motivos_por_coordenacao} />
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Gauge}
+            eyebrow="Orçamento"
+            title="Suficiência do orçamento"
+            description="Projetos com menor avaliação aparecem primeiro."
+          />
+          <ScoreChart data={riscos.suficiencia_orcamento} color="var(--meta-warning)" />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Activity}
+            eyebrow="Comunicação"
+            title="Comunicação efetiva por projeto"
+            description="Projetos com menor nota de comunicação aparecem primeiro."
+          />
+          <ScoreChart data={riscos.comunicacao_cliente} />
+        </div>
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={CheckCircle2}
+            eyebrow="Capacidade"
+            title="Capacitação da equipe"
+            description="Indica possíveis riscos técnicos de execução."
+          />
+          <ScoreChart data={riscos.capacitacao_equipe} color="var(--meta-success)" />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={ClipboardList}
+            eyebrow="Projetos"
+            title="Projetos em risco ou atraso"
+            description="Lista operacional para priorizar conversas de acompanhamento."
+          />
+          <RiskProjectsTable projects={riscos.projetos_em_risco} />
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<'overview' | 'risks'>('overview');
 
   useEffect(() => {
     axios
@@ -417,17 +694,31 @@ export default function DashboardPage() {
 
       <main className="dashboard-shell">
         <nav className="dashboard-tabs" aria-label="Seções do dashboard">
-          <button className="dashboard-tab dashboard-tab-active" type="button">
+          <button
+            className={`dashboard-tab ${activeSection === 'overview' ? 'dashboard-tab-active' : ''}`}
+            type="button"
+            onClick={() => setActiveSection('overview')}
+          >
             <LayoutDashboard size={18} aria-hidden />
             Visão Geral
           </button>
-          {['Riscos', 'Método e Escopo', 'Cliente e Orientação', 'Ágil', 'Detalhe'].map((label) => (
+          <button
+            className={`dashboard-tab ${activeSection === 'risks' ? 'dashboard-tab-active' : ''}`}
+            type="button"
+            onClick={() => setActiveSection('risks')}
+          >
+            <AlertTriangle size={18} aria-hidden />
+            Riscos
+          </button>
+          {['Método e Escopo', 'Cliente e Orientação', 'Ágil', 'Detalhe'].map((label) => (
             <button className="dashboard-tab" type="button" disabled key={label}>
               {label}
             </button>
           ))}
         </nav>
 
+        {activeSection === 'overview' ? (
+          <>
         <section className="dashboard-hero-panel" aria-label="Resumo do dashboard">
           <div>
             <span className="eyebrow text-meta-blue">Status atual</span>
@@ -667,6 +958,10 @@ export default function DashboardPage() {
             <strong>{formatNumber(metodologiasData.length)}</strong>
           </div>
         </section>
+          </>
+        ) : (
+          <RisksSection data={data} />
+        )}
       </main>
     </div>
   );
