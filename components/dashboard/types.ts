@@ -90,6 +90,31 @@ export interface ClientOrientationDashboard {
   };
 }
 
+export interface AgileProject {
+  projeto: string;
+  gerente: string;
+  data_resposta?: string | null;
+  impacto_cliente: string;
+  pct_story_points: string;
+  impedimentos: string[];
+  intervencao_pmo: string;
+  one_on_one_pmo: string;
+}
+
+export interface AgileDashboard {
+  story_points: ChartDatum[];
+  impedimentos: ChartDatum[];
+  impactos: ChartDatum[];
+  projetos: AgileProject[];
+  resumo: {
+    total_projetos: number;
+    media_story_points: number;
+    projetos_com_impedimento: number;
+    intervencoes_pmo: number;
+    solicitacoes_1_1: number;
+  };
+}
+
 export interface DashboardData {
   total_projetos: number;
   total_respostas?: number;
@@ -102,6 +127,7 @@ export interface DashboardData {
   riscos?: RiskDashboard;
   metodo_escopo?: MethodScopeDashboard;
   cliente_orientacao?: ClientOrientationDashboard;
+  agil?: AgileDashboard;
 }
 
 export type ChartDatum = {

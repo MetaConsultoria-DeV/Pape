@@ -1,5 +1,6 @@
 import { EmptyChart, ScoreBadge, StatusBadge } from './Chrome';
 import type {
+  AgileProject,
   ClientImpact,
   DashboardProject,
   MethodAttention,
@@ -192,6 +193,49 @@ export function ClientImpactTable({ items }: { items: ClientImpact[] }) {
                 )}
               </td>
               <td>{item.orientador}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function AgileProjectsTable({ projects }: { projects: AgileProject[] }) {
+  if (!projects.length) {
+    return <EmptyChart message="Ainda não há respostas ágeis com dados de sprint." />;
+  }
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-agile-projects">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Gerente</th>
+            <th>Resposta</th>
+            <th>Impacto no cliente</th>
+            <th>Impedimentos</th>
+            <th>Story points</th>
+            <th>PMO</th>
+            <th>1:1 PMO</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.slice(0, 10).map((project) => (
+            <tr key={`${project.projeto}-${project.data_resposta ?? 'sem-data'}`}>
+              <td>
+                <strong>{project.projeto}</strong>
+              </td>
+              <td>{project.gerente}</td>
+              <td>{formatDate(project.data_resposta ?? undefined)}</td>
+              <td>{project.impacto_cliente}</td>
+              <td>
+                <span>{project.impedimentos.length ? project.impedimentos.join(', ') : 'Sem impedimentos'}</span>
+              </td>
+              <td>{project.pct_story_points}</td>
+              <td>{project.intervencao_pmo}</td>
+              <td>{project.one_on_one_pmo}</td>
             </tr>
           ))}
         </tbody>

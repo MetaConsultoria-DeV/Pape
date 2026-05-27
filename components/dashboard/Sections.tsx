@@ -21,6 +21,7 @@ import {
 import { SectionHeader, StatCard } from './Chrome';
 import { COMPLETION_ORDER, STATUS_ORDER } from './config';
 import {
+  AgileProjectsTable,
   ClientImpactTable,
   MethodAttentionTable,
   ProjectTable,
@@ -50,6 +51,9 @@ export function DashboardSectionContent({
   }
   if (slug === 'cliente-e-orientacao') {
     return <ClientOrientationSection data={data} />;
+  }
+  if (slug === 'agil') {
+    return <AgileSection data={data} />;
   }
   return <OverviewSection data={data} />;
 }
@@ -667,6 +671,168 @@ function ClientOrientationSection({ data }: { data: DashboardData }) {
           description="Resumo dos sinais qualitativos por projeto, mantendo a leitura tabular do Power BI."
         />
         <ClientImpactTable items={cliente.impactos} />
+      </section>
+    </>
+  );
+}
+
+function AgileSection({ data }: { data: DashboardData }) {
+  const agil = data.agil ?? {
+    story_points: [],
+    impedimentos: [],
+    impactos: [],
+    projetos: [],
+    resumo: {
+      total_projetos: 0,
+      media_story_points: 0,
+      projetos_com_impedimento: 0,
+      intervencoes_pmo: 0,
+      solicitacoes_1_1: 0,
+    },
+  };
+
+  const impedimentoPct = agil.resumo.total_projetos
+    ? (agil.resumo.projetos_com_impedimento / agil.resumo.total_projetos) * 100
+    : 0;
+
+  return (
+    <>
+      <section className="dashboard-hero-panel dashboard-agile-hero" aria-label="Resumo ágil">
+        <div>
+          <span className="eyebrow text-meta-blue">Ágil</span>
+          <h2>Sprints, impedimentos e entrega planejada</h2>
+          <p>
+            Esta visão recupera a página ágil do Power BI com foco em story
+            points entregues, impedimentos da última sprint, impacto percebido
+            pelo cliente e pedidos de apoio da PMO.
+          </p>
+        </div>
+
+        <div className="dashboard-satisfaction dashboard-agile-summary" aria-label="Entrega média de story points">
+          <div>
+            <span>Story points médios</span>
+            <strong>{formatNumber(agil.resumo.media_story_points)}</strong>
+          </div>
+          <div className="dashboard-score-track" aria-hidden="true">
+            <span style={{ width: `${Math.min(Math.max(agil.resumo.media_story_points, 0), 100)}%` }} />
+          </div>
+          <small>{formatNumber(agil.resumo.total_projetos)} projetos com leitura ágil</small>
+        </div>
+      </section>
+
+      <section className="dashboard-stats-grid" aria-label="Indicadores ágeis">
+        <StatCard
+          icon={Gauge}
+          label="Projetos ágeis"
+          value={formatNumber(agil.resumo.total_projetos)}
+          detail="Projetos com dados de sprint na última resposta."
+          featured
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Story points médios"
+          value={formatNumber(agil.resumo.media_story_points)}
+          suffix="%"
+          detail="Ponto médio da faixa declarada de story points entregues."
+          tone={agil.resumo.media_story_points >= 70 ? 'success' : 'warning'}
+        />
+        <StatCard
+          icon={AlertTriangle}
+          label="Com impedimento"
+          value={formatNumber(agil.resumo.projetos_com_impedimento)}
+          detail={`${formatNumber(impedimentoPct)}% dos projetos ágeis têm impedimento.`}
+          tone={agil.resumo.projetos_com_impedimento ? 'warning' : 'success'}
+        />
+        <StatCard
+          icon={ClipboardList}
+          label="Intervenções PMO"
+          value={formatNumber(agil.resumo.intervencoes_pmo)}
+          detail="Projetos que registraram intervenção da PMO."
+          tone={agil.resumo.intervencoes_pmo ? 'warning' : 'default'}
+        />
+        <StatCard
+          icon={Clock3}
+          label="Solicitações 1:1"
+          value={formatNumber(agil.resumo.solicitacoes_1_1)}
+          detail="Pedidos de conversa 1:1 com PMO."
+          tone={agil.resumo.solicitacoes_1_1 ? 'warning' : 'success'}
+        />
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={TrendingUp}
+            eyebrow="Sprint"
+            title="Story points planejados entregues"
+            description="Distribuição por faixa de entrega declarada na última sprint."
+          />
+          <CompletionChart
+            data={agil.story_points}
+            emptyMessage="Aguardando dados de story points para exibir a distribuição."
+          />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={AlertTriangle}
+            eyebrow="Impedimentos"
+            title="Impedimentos da última sprint"
+            description="Tipos de impedimento mais recorrentes nos projetos ágeis."
+          />
+          <MotivesChart
+            data={agil.impedimentos}
+            emptyMessage="Nenhum impedimento registrado na última sprint."
+          />
+        </div>
+      </section>
+
+      <section className="dashboard-overview-grid dashboard-overview-grid-secondary">
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Star}
+            eyebrow="Cliente"
+            title="Impacto percebido pelo cliente"
+            description="Leitura qualitativa do impacto da sprint no relacionamento com o cliente."
+          />
+          <MotivesChart
+            data={agil.impactos}
+            emptyMessage="Ainda não há impacto percebido registrado para projetos ágeis."
+          />
+        </div>
+
+        <div className="dashboard-card dashboard-chart-card">
+          <SectionHeader
+            icon={Gauge}
+            eyebrow="Operação"
+            title="Leitura rápida da cadência ágil"
+            description="Use os indicadores acima para priorizar impedimentos, conversas 1:1 e apoio PMO."
+          />
+          <div className="dashboard-agile-rhythm">
+            <div>
+              <span>Entrega média</span>
+              <strong>{formatNumber(agil.resumo.media_story_points)}%</strong>
+            </div>
+            <div>
+              <span>Impedimentos</span>
+              <strong>{formatNumber(agil.resumo.projetos_com_impedimento)}</strong>
+            </div>
+            <div>
+              <span>Apoios PMO</span>
+              <strong>{formatNumber(agil.resumo.intervencoes_pmo + agil.resumo.solicitacoes_1_1)}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-card dashboard-project-card">
+        <SectionHeader
+          icon={ClipboardList}
+          eyebrow="Projetos"
+          title="Projetos ágeis em acompanhamento"
+          description="Tabela operacional inspirada no Power BI para acompanhar sprint, impacto, impedimentos e PMO."
+        />
+        <AgileProjectsTable projects={agil.projetos} />
       </section>
     </>
   );

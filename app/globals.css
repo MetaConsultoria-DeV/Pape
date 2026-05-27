@@ -1064,6 +1064,17 @@ label {
   background: linear-gradient(135deg, var(--meta-blue), var(--meta-navy));
 }
 
+.dashboard-agile-hero::before {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(42, 216, 255, 0.14), transparent 32%),
+    radial-gradient(circle at 100% 0%, rgba(245, 166, 35, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(244, 247, 255, 0.78));
+}
+
+.dashboard-agile-summary {
+  background: linear-gradient(135deg, #0c4260, var(--meta-navy));
+}
+
 .dashboard-overview-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -1102,6 +1113,10 @@ label {
 
 .dashboard-client-impact {
   min-width: 820px;
+}
+
+.dashboard-agile-projects {
+  min-width: 1080px;
 }
 
 .dashboard-table th,
@@ -1209,6 +1224,38 @@ label {
 .dashboard-score-badge-default {
   color: var(--meta-blue);
   background: rgba(0, 103, 255, 0.1);
+}
+
+.dashboard-agile-rhythm {
+  min-height: 280px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.dashboard-agile-rhythm > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--meta-navy-10);
+  border-radius: var(--radius-md);
+  background: rgba(244, 247, 255, 0.66);
+}
+
+.dashboard-agile-rhythm span {
+  color: var(--meta-navy-50);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-agile-rhythm strong {
+  color: var(--meta-navy);
+  font-size: 30px;
+  font-weight: 900;
 }
 
 @media (max-width: 640px) {

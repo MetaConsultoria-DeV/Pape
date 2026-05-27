@@ -161,9 +161,15 @@ export function MethodologyChart({ data }: { data: ChartDatum[] }) {
   );
 }
 
-export function CompletionChart({ data }: { data: ChartDatum[] }) {
+export function CompletionChart({
+  data,
+  emptyMessage = 'Aguardando dados de conclusão para exibir este bloco.',
+}: {
+  data: ChartDatum[];
+  emptyMessage?: string;
+}) {
   if (data.every((item) => item.value === 0)) {
-    return <ChartEmpty message="Aguardando dados de conclusão para exibir este bloco." />;
+    return <ChartEmpty message={emptyMessage} />;
   }
 
   return (
@@ -181,9 +187,15 @@ export function CompletionChart({ data }: { data: ChartDatum[] }) {
   );
 }
 
-export function MotivesChart({ data }: { data: ChartDatum[] }) {
+export function MotivesChart({
+  data,
+  emptyMessage = 'Nenhum motivo de risco/atraso registrado no status atual.',
+}: {
+  data: ChartDatum[];
+  emptyMessage?: string;
+}) {
   if (!data.length) {
-    return <ChartEmpty message="Nenhum motivo de risco/atraso registrado no status atual." />;
+    return <ChartEmpty message={emptyMessage} />;
   }
 
   return (
