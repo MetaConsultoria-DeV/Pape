@@ -57,6 +57,52 @@ function FormInput({
   );
 }
 
+function FormTextarea({
+  control,
+  name,
+  label,
+  number,
+  hint,
+  maxLength,
+  ...textareaProps
+}: BaseProps & { maxLength?: number } & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <div>
+          <FieldLabel number={number} hint={hint} required>{label}</FieldLabel>
+          <textarea
+            {...field}
+            value={(field.value as string) ?? ''}
+            className="meta-input"
+            maxLength={maxLength}
+            {...textareaProps}
+            style={{
+              minHeight: 120,
+              resize: 'vertical',
+              width: '100%',
+              ...(fieldState.error ? { borderColor: 'var(--meta-danger)' } : {}),
+              ...textareaProps.style,
+            }}
+          />
+          {maxLength && (
+            <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--meta-navy-50)', marginTop: 4 }}>
+              {((field.value as string) ?? '').length} / {maxLength}
+            </div>
+          )}
+          {fieldState.error?.message && (
+            <p style={{ color: 'var(--meta-danger)', fontSize: 13, marginTop: 8, fontWeight: 500 }}>
+              {fieldState.error.message}
+            </p>
+          )}
+        </div>
+      )}
+    />
+  );
+}
+
 function FormRadio({
   control,
   name,
@@ -275,6 +321,8 @@ function FieldRenderer({
   switch (field.type) {
     case 'input':
       return <FormInput {...base} hint={field.hint} type={field.inputType} placeholder={field.placeholder} />;
+    case 'textarea':
+      return <FormTextarea {...base} hint={field.hint} placeholder={field.placeholder} maxLength={field.maxLength} />;
     case 'radio':
       return <FormRadio {...base} options={field.options} columns={field.columns} />;
     case 'checkbox':
@@ -715,6 +763,7 @@ export default function PapeForm({
     }
     reset({
       nome_projeto: '',
+      descricao_projeto: '',
       respondente_nome: '',
       primeira_resposta: 'Sim',
       possui_orientador: 'Não',

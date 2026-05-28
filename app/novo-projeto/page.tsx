@@ -1,6 +1,6 @@
 import PapeHeader from '@/components/PapeHeader';
 import PapeForm from '@/components/PapeForm';
-import { input, radio, scale, selectServicos, selectConsultores, selectMembros, step } from '@/lib/stepBuilders';
+import { input, textarea, radio, scale, selectServicos, selectConsultores, selectMembros, step } from '@/lib/stepBuilders';
 import { StepDef } from '@/lib/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
@@ -18,49 +18,54 @@ const STEPS: StepDef[] = [
       number: 1,
       placeholder: 'Exemplo: Projeto Alfa',
     }),
-    input('data_inicio', 'Qual a data oficial de início do projeto?', {
+    textarea('descricao_projeto', 'Descrição do projeto', {
       number: 2,
+      placeholder: 'Descreva resumidamente o escopo e objetivo do projeto (máximo de 500 caracteres)...',
+      maxLength: 500,
+    }),
+    input('data_inicio', 'Qual a data oficial de início do projeto?', {
+      number: 3,
       inputType: 'date',
     }),
     input('numero_contrato', 'Número do contrato', {
-      number: 3,
+      number: 4,
       hint: 'Exemplo: 111.1111',
       placeholder: '111.1111',
     }),
     input('valor_projeto', 'Valor do projeto', {
-      number: 4,
+      number: 5,
       hint: 'Exemplo: 1.000,00 (mil reais)',
       placeholder: '1.000,00',
     }),
     selectServicos('servicos_projeto', 'Quais os serviços do projeto?', {
-      number: 5,
-    }),
-    selectConsultores('membros_projeto', 'Quem são os consultores alocados no projeto?', {
       number: 6,
     }),
-    selectMembros('gerente_projeto', 'Qual o gerente do projeto?', {
+    selectConsultores('membros_projeto', 'Quem são os consultores alocados no projeto?', {
       number: 7,
+    }),
+    selectMembros('gerente_projeto', 'Qual o gerente do projeto?', {
+      number: 8,
     }),
   ], 'Preencha as informações iniciais do contrato.'),
 
   step('Orientador Técnico', 'Sobre o orientador', [
     radio('possui_orientador', 'O projeto possui orientador técnico?', SIM_NAO, {
-      number: 8,
+      number: 9,
       columns: 2,
     }),
     input('nome_orientador', 'Qual o nome do orientador?', {
-      number: 9,
+      number: 10,
       placeholder: 'Nome completo',
       showWhen: { field: 'possui_orientador', value: 'Sim' },
     }),
     scale('efetividade_orientador', 'Qual a efetividade do orientador?', {
-      number: 10,
+      number: 11,
       lowLabel: 'Baixa',
       highLabel: 'Alta',
       showWhen: { field: 'possui_orientador', value: 'Sim' },
     }),
     scale('disponibilidade_orientador', 'Qual a disponibilidade do orientador?', {
-      number: 11,
+      number: 12,
       lowLabel: 'Baixa',
       highLabel: 'Alta',
       showWhen: { field: 'possui_orientador', value: 'Sim' },

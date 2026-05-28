@@ -6,6 +6,7 @@ export type RadioOption = { value: string; label: string; description?: string }
 
 export type FieldDef =
   | { type: 'input'; name: string; label: string; number?: number; hint?: string; inputType?: string; placeholder?: string; showWhen?: { field: string; value: string } }
+  | { type: 'textarea'; name: string; label: string; number?: number; hint?: string; placeholder?: string; maxLength?: number; showWhen?: { field: string; value: string } }
   | { type: 'radio'; name: string; label: string; number?: number; options: RadioOption[]; columns?: number; showWhen?: { field: string; value: string } }
   | { type: 'checkbox'; name: string; label: string; number?: number; options: string[]; showWhen?: { field: string; value: string } }
   | { type: 'scale'; name: string; label: string; number?: number; lowLabel?: string; highLabel?: string; dictionary?: string[]; showWhen?: { field: string; value: string } }
@@ -79,6 +80,7 @@ export interface PapeFormData {
   primeira_resposta: 'Sim' | 'Não';
 
   // Procedimentos Iniciais (condicional: se primeira_resposta = Sim)
+  descricao_projeto?: string;
   data_inicio?: string;
   numero_contrato?: string;
   valor_projeto?: string;

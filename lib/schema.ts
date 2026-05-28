@@ -9,6 +9,7 @@ export const papeFormSchema = z.object({
   primeira_resposta: z.enum(['Sim', 'Não']),
 
   // Procedimentos Iniciais (condicional)
+  descricao_projeto: z.string().max(500, 'A descrição deve ter no máximo 500 caracteres').optional(),
   data_inicio: z.string().optional(),
   numero_contrato: z.string().optional(),
   valor_projeto: z.string().optional(),
