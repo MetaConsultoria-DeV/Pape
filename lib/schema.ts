@@ -14,6 +14,7 @@ export const papeFormSchema = z.object({
   valor_projeto: z.string().optional(),
   servicos_projeto: z.array(z.number()).optional(),
   coordenacoes: z.array(z.number()).optional(),
+  membros_projeto: z.array(z.number()).optional(),
 
   // Orientador
   possui_orientador: z.enum(['Sim', 'Não']),

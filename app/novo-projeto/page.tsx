@@ -1,6 +1,6 @@
 import PapeHeader from '@/components/PapeHeader';
 import PapeForm from '@/components/PapeForm';
-import { input, radio, scale, selectServicos, step } from '@/lib/stepBuilders';
+import { input, radio, scale, selectServicos, selectConsultores, step } from '@/lib/stepBuilders';
 import { StepDef } from '@/lib/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
@@ -33,6 +33,9 @@ const STEPS: StepDef[] = [
     selectServicos('servicos_projeto', 'Quais os serviços do projeto?', {
       number: 5,
     }),
+    selectConsultores('membros_projeto', 'Quem são os consultores alocados no projeto?', {
+      number: 6,
+    }),
   ], 'Preencha as informações iniciais do contrato.'),
 
   step('Orientador Técnico', 'Sobre o orientador', [
@@ -62,13 +65,21 @@ const STEPS: StepDef[] = [
 
 export default async function NovoProjetoPage() {
   let servicos = [];
+  let membrosPorCoordenacao = [];
   try {
-    const response = await fetch(`${API_URL}/servicos`, { cache: 'no-store' });
-    if (response.ok) {
-      servicos = await response.json();
+    const [resServicos, resMembros] = await Promise.all([
+      fetch(`${API_URL}/servicos`, { cache: 'no-store' }),
+      fetch(`${API_URL}/membros-por-coordenacao`, { cache: 'no-store' }),
+    ]);
+
+    if (resServicos.ok) {
+      servicos = await resServicos.json();
+    }
+    if (resMembros.ok) {
+      membrosPorCoordenacao = await resMembros.json();
     }
   } catch (error) {
-    console.error('Erro ao buscar servicos no frontend:', error);
+    console.error('Erro ao buscar dados no frontend:', error);
   }
 
   return (
@@ -78,6 +89,7 @@ export default async function NovoProjetoPage() {
         projetos={[]}
         membros={[]}
         servicos={servicos}
+        membrosPorCoordenacao={membrosPorCoordenacao}
         steps={STEPS}
         mode="visual-project"
         submitLabel="Criar projeto →"

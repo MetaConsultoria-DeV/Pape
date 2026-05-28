@@ -27,6 +27,9 @@ export const selectMembros = (name: string, label: string, opts: SelectOpts = {}
 export const selectServicos = (name: string, label: string, opts: SelectOpts = {}): FieldDef =>
   ({ type: 'selectServicos' as const, name, label, ...opts });
 
+export const selectConsultores = (name: string, label: string, opts: SelectOpts = {}): FieldDef =>
+  ({ type: 'selectConsultores' as const, name, label, ...opts });
+
 export const step = (
   eyebrow: StepDef['eyebrow'],
   title: string,

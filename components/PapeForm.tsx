@@ -6,8 +6,9 @@ import { papeFormSchema, PapeFormInputs } from '@/lib/schema';
 import { useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Projeto, Membro, StepDef, FieldDef, ServicosPorCoordenacao } from '@/lib/types';
+import { Projeto, Membro, StepDef, FieldDef, ServicosPorCoordenacao, MembrosPorCoordenacao } from '@/lib/types';
 import ServiceSelector from '@/components/ServiceSelector';
+import MemberSelector from '@/components/MemberSelector';
 import {
   FieldLabel,
   InputField,
@@ -248,6 +249,7 @@ function FieldRenderer({
   projetosLoading,
   projetosError,
   servicos,
+  membrosPorCoordenacao = [],
 }: {
   field: FieldDef;
   control: Control<PapeFormInputs>;
@@ -258,6 +260,7 @@ function FieldRenderer({
   projetosLoading: boolean;
   projetosError: string | null;
   servicos: ServicosPorCoordenacao[];
+  membrosPorCoordenacao?: MembrosPorCoordenacao[];
 }) {
   if ('showWhen' in field && field.showWhen) {
     const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
@@ -306,6 +309,24 @@ function FieldRenderer({
           )}
         />
       );
+    case 'selectConsultores':
+      return (
+        <Controller
+          control={control}
+          name={name}
+          render={({ field: rField, fieldState }) => (
+            <div>
+              <FieldLabel number={field.number} required>{field.label}</FieldLabel>
+              <MemberSelector
+                membrosPorCoordenacao={membrosPorCoordenacao}
+                selectedIds={(rField.value as number[]) || []}
+                onChange={rField.onChange}
+                error={fieldState.error?.message}
+              />
+            </div>
+          )}
+        />
+      );
   }
 }
 
@@ -318,7 +339,12 @@ function isFieldVisible(field: FieldDef, values: Partial<PapeFormInputs>) {
   return true;
 }
 
-function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>, servicos: ServicosPorCoordenacao[]) {
+function formatReviewValue(
+  field: FieldDef,
+  values: Partial<PapeFormInputs>,
+  servicos: ServicosPorCoordenacao[],
+  membrosPorCoordenacao: MembrosPorCoordenacao[] = [],
+) {
   const value = values[field.name as keyof PapeFormInputs];
 
   if (field.type === 'selectServicos' && Array.isArray(value)) {
@@ -328,6 +354,19 @@ function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>, ser
       grupo.servicos.forEach((s) => {
         if (selectedIds.includes(s.id)) {
           names.push(`${s.nome} (${grupo.coordenacao_sigla})`);
+        }
+      });
+    });
+    return names.length > 0 ? names.join(' + ') : 'Não informado';
+  }
+
+  if (field.type === 'selectConsultores' && Array.isArray(value)) {
+    const names: string[] = [];
+    const selectedIds = value as number[];
+    membrosPorCoordenacao.forEach((grupo) => {
+      grupo.membros.forEach((m) => {
+        if (selectedIds.includes(m.id)) {
+          names.push(`${m.nome} (${grupo.coordenacao_sigla})`);
         }
       });
     });
@@ -353,10 +392,12 @@ function ReviewStep({
   steps,
   values,
   servicos,
+  membrosPorCoordenacao = [],
 }: {
   steps: StepDef[];
   values: Partial<PapeFormInputs>;
   servicos: ServicosPorCoordenacao[];
+  membrosPorCoordenacao?: MembrosPorCoordenacao[];
 }) {
   return (
     <StepCard
@@ -389,7 +430,7 @@ function ReviewStep({
                       {field.number ? `${field.number}. ` : ''}{field.label}
                     </div>
                     <div style={{ fontSize: 15, color: 'var(--meta-navy)', fontWeight: 700, lineHeight: 1.5 }}>
-                      {formatReviewValue(field, values, servicos)}
+                      {formatReviewValue(field, values, servicos, membrosPorCoordenacao)}
                     </div>
                   </div>
                 ))}
@@ -417,6 +458,7 @@ export default function PapeForm({
   projetos,
   membros,
   servicos = [],
+  membrosPorCoordenacao = [],
   steps,
   mode = 'pape',
   submitLabel,
@@ -425,6 +467,7 @@ export default function PapeForm({
   projetos: Projeto[];
   membros: Membro[];
   servicos?: ServicosPorCoordenacao[];
+  membrosPorCoordenacao?: MembrosPorCoordenacao[];
   steps: StepDef[];
   mode?: 'pape' | 'visual-project';
   submitLabel?: string;
@@ -680,13 +723,14 @@ export default function PapeForm({
                     projetosLoading={projetosLoading}
                     projetosError={projetosError}
                     servicos={servicos}
+                    membrosPorCoordenacao={membrosPorCoordenacao}
                   />
                 ))}
               </StepCard>
             )}
 
             {showReviewStep && (
-              <ReviewStep steps={steps} values={values} servicos={servicos} />
+              <ReviewStep steps={steps} values={values} servicos={servicos} membrosPorCoordenacao={membrosPorCoordenacao} />
             )}
 
             {showSuccessStep && (

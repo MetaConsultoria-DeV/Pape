@@ -11,7 +11,8 @@ export type FieldDef =
   | { type: 'scale'; name: string; label: string; number?: number; lowLabel?: string; highLabel?: string; dictionary?: string[]; showWhen?: { field: string; value: string } }
   | { type: 'select-projetos'; name: string; label: string; number?: number }
   | { type: 'select-membros';  name: string; label: string; number?: number }
-  | { type: 'selectServicos';  name: string; label: string; number?: number };
+  | { type: 'selectServicos';  name: string; label: string; number?: number }
+  | { type: 'selectConsultores'; name: string; label: string; number?: number };
 
 export type StepDef = {
   eyebrow?: string | { watchField: string; map: Record<string, string> };
@@ -55,6 +56,13 @@ export interface ServicosPorCoordenacao {
   servicos: Servico[];
 }
 
+export interface MembrosPorCoordenacao {
+  coordenacao_id: number;
+  coordenacao_nome: string;
+  coordenacao_sigla: string;
+  membros: Membro[];
+}
+
 export interface Membro {
   id: number;
   nome: string;
@@ -76,6 +84,7 @@ export interface PapeFormData {
   valor_projeto?: string;
   servicos_projeto?: number[];
   coordenacoes?: number[];
+  membros_projeto?: number[];
 
   // Orientador Técnico
   possui_orientador: 'Sim' | 'Não';
