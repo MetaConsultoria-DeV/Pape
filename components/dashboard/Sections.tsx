@@ -203,24 +203,6 @@ function OverviewSection({ data }: { data: DashboardData }) {
         />
         <ProjectTable projects={currentProjects} />
       </section>
-
-      <section className="dashboard-insight-band" aria-label="Indicadores de acompanhamento">
-        <div>
-          <AlertTriangle size={22} aria-hidden="true" />
-          <span>Demandam atenção</span>
-          <strong>{formatNumber(emAtencao)}</strong>
-        </div>
-        <div>
-          <TrendingUp size={22} aria-hidden="true" />
-          <span>Projetos concluídos</span>
-          <strong>{formatNumber(concluidos)}</strong>
-        </div>
-        <div>
-          <PieChartIcon size={22} aria-hidden="true" />
-          <span>Metodologias mapeadas</span>
-          <strong>{formatNumber(metodologiasData.length)}</strong>
-        </div>
-      </section>
     </>
   );
 }
