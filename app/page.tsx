@@ -314,8 +314,8 @@ export default async function Page() {
   return (
     <div className="meta-bg">
       <PapeHeader 
-        actionHref="/novo-projeto" 
-        actionLabel="Criar novo projeto" 
+        actionHref="/projetos" 
+        actionLabel="Projetos" 
         dashboardHref="/dashboard"
         dashboardLabel="Ver Dashboard"
       />
