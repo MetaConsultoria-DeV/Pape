@@ -3,12 +3,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import {
   Activity,
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
   Gauge,
   LayoutDashboard,
@@ -90,6 +92,78 @@ export function DashboardDataError() {
         <span>Verifique o servidor da API e atualize a página.</span>
       </div>
     </section>
+  );
+}
+
+function CustomDateSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  formatDate,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  options: string[];
+  placeholder: string;
+  formatDate: (val: string) => string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const selectedLabel = value ? formatDate(value) : placeholder;
+
+  return (
+    <div className="custom-dropdown-container" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="custom-dropdown-button"
+      >
+        <span>{selectedLabel}</span>
+        <ChevronDown size={14} className={`chevron-icon ${isOpen ? 'rotate' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="custom-dropdown-list">
+          <button
+            type="button"
+            className={`custom-dropdown-item ${!value ? 'selected' : ''}`}
+            onClick={() => {
+              onChange('');
+              setIsOpen(false);
+            }}
+          >
+            {placeholder}
+          </button>
+          {options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              className={`custom-dropdown-item ${value === opt ? 'selected' : ''}`}
+              onClick={() => {
+                onChange(opt);
+                setIsOpen(false);
+              }}
+            >
+              {formatDate(opt)}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -195,34 +269,22 @@ export function DashboardShell({
           </div>
 
           <div className="dashboard-global-filters">
-            <span className="dashboard-filters-label">Data de Resposta</span>
-            <select
+            <span className="dashboard-filters-label">Data</span>
+            <CustomDateSelect
               value={dataInicio}
-              onChange={(e) => handleDateChange('data_inicio', e.target.value)}
-              className="dashboard-global-date-select"
-              aria-label="Data de início"
-            >
-              <option value="">Desde o início</option>
-              {datasDisponiveis.map((date) => (
-                <option key={date} value={date}>
-                  {formatDateString(date)}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => handleDateChange('data_inicio', val)}
+              options={datasDisponiveis}
+              placeholder="Desde o início"
+              formatDate={formatDateString}
+            />
             <span className="dashboard-filters-separator">a</span>
-            <select
+            <CustomDateSelect
               value={dataFim}
-              onChange={(e) => handleDateChange('data_fim', e.target.value)}
-              className="dashboard-global-date-select"
-              aria-label="Data de fim"
-            >
-              <option value="">Até a última</option>
-              {datasDisponiveis.map((date) => (
-                <option key={date} value={date}>
-                  {formatDateString(date)}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => handleDateChange('data_fim', val)}
+              options={datasDisponiveis}
+              placeholder="Até a última"
+              formatDate={formatDateString}
+            />
           </div>
         </nav>
 
