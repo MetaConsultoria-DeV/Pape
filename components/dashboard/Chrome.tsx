@@ -95,9 +95,11 @@ export function DashboardDataError() {
 
 export function DashboardShell({
   activeSlug,
+  datasDisponiveis = [],
   children,
 }: {
   activeSlug: DashboardSlug;
+  datasDisponiveis?: string[];
   children: ReactNode;
 }) {
   const activeSection = getDashboardSection(activeSlug);
@@ -116,6 +118,14 @@ export function DashboardShell({
       params.delete(key);
     }
     router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const formatDateString = (dateStr: string): string => {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
   };
 
   return (
@@ -186,21 +196,33 @@ export function DashboardShell({
 
           <div className="dashboard-global-filters">
             <span className="dashboard-filters-label">Data de Resposta</span>
-            <input
-              type="date"
+            <select
               value={dataInicio}
               onChange={(e) => handleDateChange('data_inicio', e.target.value)}
-              className="dashboard-global-date-input"
+              className="dashboard-global-date-select"
               aria-label="Data de início"
-            />
+            >
+              <option value="">Desde o início</option>
+              {datasDisponiveis.map((date) => (
+                <option key={date} value={date}>
+                  {formatDateString(date)}
+                </option>
+              ))}
+            </select>
             <span className="dashboard-filters-separator">a</span>
-            <input
-              type="date"
+            <select
               value={dataFim}
               onChange={(e) => handleDateChange('data_fim', e.target.value)}
-              className="dashboard-global-date-input"
+              className="dashboard-global-date-select"
               aria-label="Data de fim"
-            />
+            >
+              <option value="">Até a última</option>
+              {datasDisponiveis.map((date) => (
+                <option key={date} value={date}>
+                  {formatDateString(date)}
+                </option>
+              ))}
+            </select>
           </div>
         </nav>
 

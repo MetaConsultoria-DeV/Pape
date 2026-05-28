@@ -182,6 +182,7 @@ export interface DashboardData {
   cliente_orientacao?: ClientOrientationDashboard;
   agil?: AgileDashboard;
   detalhe?: DetailDashboard;
+  datas_disponiveis?: string[];
 }
 
 export type ChartDatum = {

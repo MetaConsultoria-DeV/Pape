@@ -46,14 +46,14 @@ export default async function DashboardSlugPage({ params, searchParams }: Dashbo
 
   if (!data) {
     return (
-      <DashboardShell activeSlug={slug}>
+      <DashboardShell activeSlug={slug} datasDisponiveis={[]}>
         <DashboardDataError />
       </DashboardShell>
     );
   }
 
   return (
-    <DashboardShell activeSlug={slug}>
+    <DashboardShell activeSlug={slug} datasDisponiveis={data.datas_disponiveis}>
       <DashboardSectionContent slug={slug} data={data} />
     </DashboardShell>
   );
