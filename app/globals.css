@@ -70,7 +70,7 @@ html, body {
   position: relative;
 }
 
-.meta-bg::before {
+/* .meta-bg::before {
   content: '';
   position: fixed;
   top: 0;
@@ -84,7 +84,7 @@ html, body {
   opacity: 0.06;
   pointer-events: none;
   z-index: 0;
-}
+} */
 
 /* ============================================================
    Typography classes
