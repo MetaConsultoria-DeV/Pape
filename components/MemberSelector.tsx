@@ -5,14 +5,14 @@ import { MembrosPorCoordenacao, Membro } from '@/lib/types';
 
 interface MemberSelectorProps {
   membrosPorCoordenacao: MembrosPorCoordenacao[];
-  selectedIds: number[];
-  onChange: (ids: number[]) => void;
+  selectedKeys?: string[];
+  onChange: (keys: string[]) => void;
   error?: string;
 }
 
 export default function MemberSelector({
   membrosPorCoordenacao,
-  selectedIds = [],
+  selectedKeys = [],
   onChange,
   error,
 }: MemberSelectorProps) {
@@ -50,10 +50,10 @@ export default function MemberSelector({
     return list;
   }, [membrosPorCoordenacao]);
 
-  // Map of member ID to member details for O(1) lookups
+  // Map of key (membroId-coordenacaoId) to member details for O(1) lookups
   const memberMap = useMemo(() => {
-    const map = new Map<number, typeof allMembers[0]>();
-    allMembers.forEach((m) => map.set(m.id, m));
+    const map = new Map<string, typeof allMembers[0]>();
+    allMembers.forEach((m) => map.set(`${m.id}-${m.coordenacaoId}`, m));
     return map;
   }, [allMembers]);
 
@@ -77,30 +77,30 @@ export default function MemberSelector({
       .filter((grupo) => grupo.membros.length > 0);
   }, [membrosPorCoordenacao, searchTerm]);
 
-  const handleSelect = (id: number) => {
-    let nextIds: number[];
-    if (selectedIds.includes(id)) {
-      nextIds = selectedIds.filter((x) => x !== id);
+  const handleSelect = (key: string) => {
+    let nextKeys: string[];
+    if (selectedKeys.includes(key)) {
+      nextKeys = selectedKeys.filter((x) => x !== key);
     } else {
-      nextIds = [...selectedIds, id];
+      nextKeys = [...selectedKeys, key];
     }
-    onChange(nextIds);
+    onChange(nextKeys);
     // Keep focus on input for typing/searching
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
-  const handleRemove = (id: number, e: React.MouseEvent) => {
+  const handleRemove = (key: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const nextIds = selectedIds.filter((x) => x !== id);
-    onChange(nextIds);
+    const nextKeys = selectedKeys.filter((x) => x !== key);
+    onChange(nextKeys);
   };
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
       {/* Selected Chips */}
-      {selectedIds.length > 0 && (
+      {selectedKeys.length > 0 && (
         <div
           style={{
             display: 'flex',
@@ -109,12 +109,12 @@ export default function MemberSelector({
             marginBottom: 12,
           }}
         >
-          {selectedIds.map((id) => {
-            const m = memberMap.get(id);
+          {selectedKeys.map((key) => {
+            const m = memberMap.get(key);
             if (!m) return null;
             return (
               <div
-                key={id}
+                key={key}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -134,7 +134,7 @@ export default function MemberSelector({
                 </span>
                 <button
                   type="button"
-                  onClick={(e) => handleRemove(id, e)}
+                  onClick={(e) => handleRemove(key, e)}
                   style={{
                     border: 'none',
                     background: 'transparent',
@@ -188,7 +188,7 @@ export default function MemberSelector({
           <input
             ref={inputRef}
             type="text"
-            placeholder={selectedIds.length === 0 ? "Buscar consultor..." : "Adicionar mais consultores..."}
+            placeholder={selectedKeys.length === 0 ? "Buscar consultor..." : "Adicionar mais consultores..."}
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -273,11 +273,12 @@ export default function MemberSelector({
                   {/* Group Members */}
                   <div style={{ padding: '4px 0' }}>
                     {grupo.membros.map((m) => {
-                      const isSelected = selectedIds.includes(m.id);
+                      const key = `${m.id}-${grupo.coordenacao_id}`;
+                      const isSelected = selectedKeys.includes(key);
                       return (
                         <div
-                          key={m.id}
-                          onClick={() => handleSelect(m.id)}
+                          key={key}
+                          onClick={() => handleSelect(key)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',

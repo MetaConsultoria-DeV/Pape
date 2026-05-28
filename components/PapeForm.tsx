@@ -319,7 +319,7 @@ function FieldRenderer({
               <FieldLabel number={field.number} required>{field.label}</FieldLabel>
               <MemberSelector
                 membrosPorCoordenacao={membrosPorCoordenacao}
-                selectedIds={(rField.value as number[]) || []}
+                selectedKeys={(rField.value as string[]) || []}
                 onChange={rField.onChange}
                 error={fieldState.error?.message}
               />
@@ -362,14 +362,25 @@ function formatReviewValue(
 
   if (field.type === 'selectConsultores' && Array.isArray(value)) {
     const names: string[] = [];
-    const selectedIds = value as number[];
+    const selectedKeys = value as string[];
+    
+    const memberCoordMap = new Map<string, { nome: string; sigla: string }>();
     membrosPorCoordenacao.forEach((grupo) => {
       grupo.membros.forEach((m) => {
-        if (selectedIds.includes(m.id)) {
-          names.push(`${m.nome} (${grupo.coordenacao_sigla})`);
-        }
+        memberCoordMap.set(`${m.id}-${grupo.coordenacao_id}`, {
+          nome: m.nome,
+          sigla: grupo.coordenacao_sigla,
+        });
       });
     });
+
+    selectedKeys.forEach((key) => {
+      const match = memberCoordMap.get(key);
+      if (match) {
+        names.push(`${match.nome} (${match.sigla})`);
+      }
+    });
+
     return names.length > 0 ? names.join(' + ') : 'Não informado';
   }
 
@@ -703,7 +714,7 @@ export default function PapeForm({
 
       <main style={{ flex: 1, padding: '48px 16px 80px', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <div className="meta-card" style={{ padding: '56px 48px' }}>
+          <div className="meta-card" style={{ padding: '56px 48px', overflow: 'visible' }}>
 
             {currentStep && (
               <StepCard

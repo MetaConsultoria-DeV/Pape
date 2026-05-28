@@ -84,7 +84,7 @@ export interface PapeFormData {
   valor_projeto?: string;
   servicos_projeto?: number[];
   coordenacoes?: number[];
-  membros_projeto?: number[];
+  membros_projeto?: string[];
 
   // Orientador Técnico
   possui_orientador: 'Sim' | 'Não';
