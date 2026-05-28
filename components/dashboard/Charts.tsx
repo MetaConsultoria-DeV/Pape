@@ -8,6 +8,8 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -256,6 +258,61 @@ export function ScoreChart({
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0, 103, 255, 0.06)' }} />
           <Bar dataKey="value" fill={color} radius={[0, 8, 8, 0]} maxBarSize={32} />
         </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function ProgressLineChart({ data }: { data: ChartDatum[] }) {
+  if (!data.length) {
+    return <ChartEmpty message="Ainda não há histórico suficiente para montar o andamento do projeto." />;
+  }
+
+  const mappedData = data.map((item) => {
+    let rank = 1;
+    if (item.value >= 80) rank = 5;
+    else if (item.value >= 60) rank = 4;
+    else if (item.value >= 40) rank = 3;
+    else if (item.value >= 20) rank = 2;
+    else rank = 1;
+
+    return {
+      ...item,
+      value: rank,
+    };
+  });
+
+  return (
+    <div className="dashboard-horizontal-chart">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={mappedData} margin={{ top: 18, right: 24, left: 10, bottom: 10 }}>
+          <CartesianGrid vertical={false} stroke="rgba(107, 114, 153, 0.24)" />
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
+          />
+          <YAxis
+            domain={[1, 5]}
+            tickCount={5}
+            tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
+            label={{
+              value: 'Faixa de Conclusão (ex.: 0~20...)',
+              angle: -90,
+              position: 'insideLeft',
+              offset: -5,
+              style: { textAnchor: 'middle', fill: 'var(--meta-navy-50)', fontSize: 10, fontWeight: 700 }
+            }}
+          />
+          <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(0, 103, 255, 0.18)' }} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="var(--meta-blue)"
+            strokeWidth={4}
+            dot={{ r: 5, fill: 'var(--meta-blue)', stroke: 'var(--meta-white)', strokeWidth: 3 }}
+            activeDot={{ r: 7 }}
+          />
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );

@@ -2,9 +2,13 @@ import type { DashboardData } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-export async function getDashboardData(): Promise<DashboardData | null> {
+export async function getDashboardData(projetoId?: string): Promise<DashboardData | null> {
   try {
-    const response = await fetch(`${API_URL}/dashboard/pape`, {
+    let url = `${API_URL}/dashboard/pape`;
+    if (projetoId) {
+      url += `?projeto_id=${encodeURIComponent(projetoId)}`;
+    }
+    const response = await fetch(url, {
       cache: 'no-store',
     });
 

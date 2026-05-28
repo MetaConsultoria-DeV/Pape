@@ -3,6 +3,8 @@ import type {
   AgileProject,
   ClientImpact,
   DashboardProject,
+  DetailHistoryRow,
+  DetailProjectSummary,
   MethodAttention,
   RiskMatrixRow,
   RiskProject,
@@ -236,6 +238,80 @@ export function AgileProjectsTable({ projects }: { projects: AgileProject[] }) {
               <td>{project.pct_story_points}</td>
               <td>{project.intervencao_pmo}</td>
               <td>{project.one_on_one_pmo}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function DetailHistoryTable({ rows }: { rows: DetailHistoryRow[] }) {
+  if (!rows.length) {
+    return <EmptyChart message="Ainda não há histórico de respostas para o projeto em foco." />;
+  }
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-detail-history">
+        <thead>
+          <tr>
+            <th>Data resposta</th>
+            <th>Status do cronograma</th>
+            <th>Conclusão</th>
+            <th>Impacto percebido</th>
+            <th>Intervenção PMO</th>
+            <th>1:1 PMO</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={`${row.data_resposta ?? 'sem-data'}-${row.pct_conclusao}`}>
+              <td>{formatDate(row.data_resposta ?? undefined)}</td>
+              <td>
+                <StatusBadge status={row.status_cronograma} />
+              </td>
+              <td>{row.pct_conclusao}</td>
+              <td>{row.impacto_cliente}</td>
+              <td>{row.intervencao_pmo}</td>
+              <td>{row.one_on_one_pmo}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function DetailProjectsTable({ projects }: { projects: DetailProjectSummary[] }) {
+  if (!projects.length) {
+    return <EmptyChart message="Ainda não há projetos com respostas PAPE para listar." />;
+  }
+
+  return (
+    <div className="dashboard-table-wrap">
+      <table className="dashboard-table dashboard-detail-projects">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Gerente</th>
+            <th>Status</th>
+            <th>Conclusão</th>
+            <th>Última resposta</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.slice(0, 12).map((project) => (
+            <tr key={`${project.projeto_id ?? project.projeto}-${project.data_resposta ?? 'sem-data'}`}>
+              <td>
+                <strong>{project.projeto}</strong>
+              </td>
+              <td>{project.gerente}</td>
+              <td>
+                <StatusBadge status={project.status_cronograma} />
+              </td>
+              <td>{project.pct_conclusao}</td>
+              <td>{formatDate(project.data_resposta ?? undefined)}</td>
             </tr>
           ))}
         </tbody>

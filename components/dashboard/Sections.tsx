@@ -1,6 +1,13 @@
+'use client';
+
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
+  ArrowLeftCircle,
   BarChart2,
   CheckCircle2,
   ClipboardList,
@@ -15,6 +22,7 @@ import {
   CompletionChart,
   MethodologyChart,
   MotivesChart,
+  ProgressLineChart,
   ScoreChart,
   StatusChart,
 } from './Charts';
@@ -23,6 +31,8 @@ import { COMPLETION_ORDER, STATUS_ORDER } from './config';
 import {
   AgileProjectsTable,
   ClientImpactTable,
+  DetailHistoryTable,
+  DetailProjectsTable,
   MethodAttentionTable,
   ProjectTable,
   RiskMatrixTable,
@@ -54,6 +64,9 @@ export function DashboardSectionContent({
   }
   if (slug === 'agil') {
     return <AgileSection data={data} />;
+  }
+  if (slug === 'detalhe') {
+    return <DetailSection data={data} />;
   }
   return <OverviewSection data={data} />;
 }
@@ -833,6 +846,292 @@ function AgileSection({ data }: { data: DashboardData }) {
           description="Tabela operacional inspirada no Power BI para acompanhar sprint, impacto, impedimentos e PMO."
         />
         <AgileProjectsTable projects={agil.projetos} />
+      </section>
+    </>
+  );
+}
+
+function DetailSection({ data }: { data: DashboardData }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const detalhe = data.detalhe ?? {
+    projeto_foco: null,
+    metricas: {},
+    andamento: [],
+    motivos_atraso: [],
+    historico: [],
+    projetos: [],
+  };
+
+  const allDates = useMemo(() => {
+    if (!detalhe.historico) return [];
+    return detalhe.historico
+      .map((h) => h.data_resposta)
+      .filter((d): d is string => !!d)
+      .sort();
+  }, [detalhe.historico]);
+
+  const defaultMinDate = allDates.length ? allDates[0] : '';
+  const defaultMaxDate = allDates.length ? allDates[allDates.length - 1] : '';
+
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const activeStartDate = startDate || defaultMinDate;
+  const activeEndDate = endDate || defaultMaxDate;
+
+  const handleProjectChange = (projectId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('projeto_id', projectId);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const filteredHistorico = useMemo(() => {
+    if (!detalhe.historico) return [];
+    return detalhe.historico.filter((row) => {
+      if (!row.data_resposta) return true;
+      const d = row.data_resposta;
+      const startSatisfied = !activeStartDate || d >= activeStartDate;
+      const endSatisfied = !activeEndDate || d <= activeEndDate;
+      return startSatisfied && endSatisfied;
+    });
+  }, [detalhe.historico, activeStartDate, activeEndDate]);
+
+  const filteredAndamento = useMemo(() => {
+    if (!detalhe.andamento) return [];
+    return detalhe.andamento.filter((point) => {
+      const parts = point.name.split('/');
+      if (parts.length === 3) {
+        const yyyymmdd = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const startSatisfied = !activeStartDate || yyyymmdd >= activeStartDate;
+        const endSatisfied = !activeEndDate || yyyymmdd <= activeEndDate;
+        return startSatisfied && endSatisfied;
+      }
+      return true;
+    });
+  }, [detalhe.andamento, activeStartDate, activeEndDate]);
+
+  const recalculatedMetricas = useMemo(() => {
+    const sum = {
+      confianca_cliente: 0,
+      comunicacao_cliente: 0,
+      eficacia_metodologia: 0,
+      capacitacao_equipe: 0,
+      nivel_retrabalho: 0,
+      suficiencia_orcamento: 0,
+    };
+    const count = {
+      confianca_cliente: 0,
+      comunicacao_cliente: 0,
+      eficacia_metodologia: 0,
+      capacitacao_equipe: 0,
+      nivel_retrabalho: 0,
+      suficiencia_orcamento: 0,
+    };
+
+    filteredHistorico.forEach((row) => {
+      if (row.confianca_cliente !== undefined && row.confianca_cliente > 0) {
+        sum.confianca_cliente += row.confianca_cliente;
+        count.confianca_cliente++;
+      }
+      if (row.comunicacao_cliente !== undefined && row.comunicacao_cliente > 0) {
+        sum.comunicacao_cliente += row.comunicacao_cliente;
+        count.comunicacao_cliente++;
+      }
+      if (row.eficacia_metodologia !== undefined && row.eficacia_metodologia > 0) {
+        sum.eficacia_metodologia += row.eficacia_metodologia;
+        count.eficacia_metodologia++;
+      }
+      if (row.capacitacao_equipe !== undefined && row.capacitacao_equipe > 0) {
+        sum.capacitacao_equipe += row.capacitacao_equipe;
+        count.capacitacao_equipe++;
+      }
+      if (row.nivel_retrabalho !== undefined && row.nivel_retrabalho > 0) {
+        sum.nivel_retrabalho += row.nivel_retrabalho;
+        count.nivel_retrabalho++;
+      }
+      if (row.suficiencia_orcamento !== undefined && row.suficiencia_orcamento > 0) {
+        sum.suficiencia_orcamento += row.suficiencia_orcamento;
+        count.suficiencia_orcamento++;
+      }
+    });
+
+    return {
+      confianca_cliente: count.confianca_cliente ? sum.confianca_cliente / count.confianca_cliente : 0,
+      comunicacao_cliente: count.comunicacao_cliente ? sum.comunicacao_cliente / count.comunicacao_cliente : 0,
+      eficacia_metodologia: count.eficacia_metodologia ? sum.eficacia_metodologia / count.eficacia_metodologia : 0,
+      capacitacao_equipe: count.capacitacao_equipe ? sum.capacitacao_equipe / count.capacitacao_equipe : 0,
+      nivel_retrabalho: count.nivel_retrabalho ? sum.nivel_retrabalho / count.nivel_retrabalho : 0,
+      suficiencia_orcamento: count.suficiencia_orcamento ? sum.suficiencia_orcamento / count.suficiencia_orcamento : 0,
+    };
+  }, [filteredHistorico]);
+
+  const recalculatedMotivos = useMemo(() => {
+    const counts: Record<string, number> = {};
+    filteredHistorico.forEach((row) => {
+      if (row.motivos_atraso) {
+        row.motivos_atraso.forEach((motivo) => {
+          counts[motivo] = (counts[motivo] || 0) + 1;
+        });
+      }
+    });
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [filteredHistorico]);
+
+  if (!detalhe.projeto_foco) {
+    return (
+      <section className="dashboard-card dashboard-project-card">
+        <SectionHeader
+          icon={ClipboardList}
+          eyebrow="Detalhe"
+          title="Nenhum projeto com histórico disponível"
+          description="Assim que houver respostas PAPE, esta visão mostrará o projeto em foco e sua evolução."
+        />
+      </section>
+    );
+  }
+
+  return (
+    <>
+      <header className="dashboard-detail-header-row">
+        <div className="project-select-card">
+          <span className="project-select-label">Selecione o Projeto</span>
+          <select
+            value={detalhe.projeto_foco.projeto_id || ''}
+            onChange={(e) => handleProjectChange(e.target.value)}
+            className="project-select-dropdown"
+          >
+            {detalhe.projetos.map((proj) => (
+              <option key={proj.projeto_id ?? proj.projeto} value={proj.projeto_id ?? ''}>
+                {proj.projeto}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="date-filter-card">
+          <span>Data de Resposta</span>
+          <div className="date-inputs-row">
+            <input
+              type="date"
+              value={activeStartDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="date-input-field"
+              min={defaultMinDate}
+              max={defaultMaxDate}
+            />
+            <input
+              type="date"
+              value={activeEndDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="date-input-field"
+              min={defaultMinDate}
+              max={defaultMaxDate}
+            />
+          </div>
+        </div>
+
+        <Link href="/dashboard/visao-geral" className="back-circle-button" title="Voltar para Visão Geral">
+          <ArrowLeft size={24} />
+        </Link>
+      </header>
+
+      <div className="dashboard-overview-grid">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <section className="dashboard-card dashboard-project-card" style={{ marginTop: 0 }}>
+            <SectionHeader
+              icon={ClipboardList}
+              eyebrow="Histórico"
+              title="Respostas do projeto em foco"
+              description="Leitura operacional das respostas PAPE no período selecionado."
+            />
+            <DetailHistoryTable rows={filteredHistorico} />
+          </section>
+
+          <section className="dashboard-card dashboard-chart-card">
+            <SectionHeader
+              icon={TrendingUp}
+              eyebrow="Andamento"
+              title="Andamento do Projeto"
+              description="Histórico da faixa de conclusão ao longo das respostas PAPE."
+            />
+            <ProgressLineChart data={filteredAndamento} />
+          </section>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <StatCard
+              icon={Star}
+              label="Confiança do Cliente"
+              value={formatNumber(recalculatedMetricas.confianca_cliente)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.confianca_cliente)}
+            />
+            <StatCard
+              icon={Activity}
+              label="Eficiência da Comunicação Cliente"
+              value={formatNumber(recalculatedMetricas.comunicacao_cliente)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.comunicacao_cliente)}
+            />
+            <StatCard
+              icon={Gauge}
+              label="Eficiência da Metodologia"
+              value={formatNumber(recalculatedMetricas.eficacia_metodologia)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.eficacia_metodologia)}
+            />
+            <StatCard
+              icon={CheckCircle2}
+              label="Capacitação da Equipe"
+              value={formatNumber(recalculatedMetricas.capacitacao_equipe)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.capacitacao_equipe)}
+            />
+            <StatCard
+              icon={AlertTriangle}
+              label="Problema por Retrabalho"
+              value={formatNumber(recalculatedMetricas.nivel_retrabalho)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.nivel_retrabalho)}
+            />
+            <StatCard
+              icon={Star}
+              label="Suficiência do Orçamento"
+              value={formatNumber(recalculatedMetricas.suficiencia_orcamento)}
+              detail="Média do período"
+              tone={getScoreTone(recalculatedMetricas.suficiencia_orcamento)}
+            />
+          </div>
+
+          <section className="dashboard-card dashboard-chart-card">
+            <SectionHeader
+              icon={AlertTriangle}
+              eyebrow="Risco"
+              title="Motivos dos Riscos/Atraso"
+              description="Tipos de risco recorrentes citados no período selecionado."
+            />
+            <MotivesChart
+              data={recalculatedMotivos}
+              emptyMessage="Nenhum motivo de risco/atraso registrado para o período selecionado."
+            />
+          </section>
+        </div>
+      </div>
+
+      <section className="dashboard-card dashboard-project-card">
+        <SectionHeader
+          icon={Target}
+          eyebrow="Carteira"
+          title="Projetos disponíveis para detalhe"
+          description="Projetos ordenados por prioridade de atenção, usando a última resposta de cada um."
+        />
+        <DetailProjectsTable projects={detalhe.projetos} />
       </section>
     </>
   );

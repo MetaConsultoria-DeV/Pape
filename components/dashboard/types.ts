@@ -115,6 +115,59 @@ export interface AgileDashboard {
   };
 }
 
+export interface DetailFocusProject {
+  projeto_id?: number | null;
+  projeto: string;
+  gerente: string;
+  status_cronograma: string;
+  pct_conclusao: string;
+  data_resposta?: string | null;
+  impacto_cliente: string;
+  intervencao_pmo: string;
+  one_on_one_pmo: string;
+}
+
+export interface DetailHistoryRow {
+  data_resposta?: string | null;
+  status_cronograma: string;
+  pct_conclusao: string;
+  impacto_cliente: string;
+  intervencao_pmo: string;
+  one_on_one_pmo: string;
+  confianca_cliente?: number;
+  comunicacao_cliente?: number;
+  eficacia_metodologia?: number;
+  capacitacao_equipe?: number;
+  nivel_retrabalho?: number;
+  suficiencia_orcamento?: number;
+  motivos_atraso?: string[];
+}
+
+export interface DetailProjectSummary {
+  projeto_id?: number | null;
+  projeto: string;
+  gerente: string;
+  status_cronograma: string;
+  pct_conclusao: string;
+  data_resposta?: string | null;
+}
+
+export interface DetailDashboard {
+  projeto_foco: DetailFocusProject | null;
+  metricas: {
+    confianca_cliente?: number;
+    comunicacao_cliente?: number;
+    eficacia_metodologia?: number;
+    capacitacao_equipe?: number;
+    nivel_retrabalho?: number;
+    suficiencia_orcamento?: number;
+  };
+  andamento: ChartDatum[];
+  motivos_atraso: ChartDatum[];
+  historico: DetailHistoryRow[];
+  projetos: DetailProjectSummary[];
+}
+
 export interface DashboardData {
   total_projetos: number;
   total_respostas?: number;
@@ -128,6 +181,7 @@ export interface DashboardData {
   metodo_escopo?: MethodScopeDashboard;
   cliente_orientacao?: ClientOrientationDashboard;
   agil?: AgileDashboard;
+  detalhe?: DetailDashboard;
 }
 
 export type ChartDatum = {
