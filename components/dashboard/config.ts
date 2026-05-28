@@ -11,7 +11,7 @@ export const DASHBOARD_SECTIONS: Array<{
   { slug: 'riscos', label: 'Riscos', enabled: true },
   { slug: 'metodo-e-escopo', label: 'Método e Escopo', enabled: true },
   { slug: 'cliente-e-orientacao', label: 'Cliente e Orientação', enabled: true },
-  { slug: 'agil', label: 'Ágil', enabled: true },
+  { slug: 'agil', label: 'Ágil', enabled: false },
   { slug: 'detalhe', label: 'Detalhe', enabled: true },
 ];
 

@@ -132,18 +132,9 @@ export function DashboardShell({
 
       <main className="dashboard-shell">
         <nav className="dashboard-tabs" aria-label="Seções do dashboard">
-          {DASHBOARD_SECTIONS.map((section) => {
+          {DASHBOARD_SECTIONS.filter((section) => section.enabled).map((section) => {
             const Icon = getSectionIcon(section.slug);
             const active = section.slug === activeSlug;
-
-            if (!section.enabled) {
-              return (
-                <button className="dashboard-tab" type="button" disabled key={section.slug}>
-                  <Icon size={18} aria-hidden />
-                  {section.label}
-                </button>
-              );
-            }
 
             return (
               <Link
