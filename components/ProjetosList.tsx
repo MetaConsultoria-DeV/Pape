@@ -118,13 +118,13 @@ export default function ProjetosList({ initialProjects }: ProjetosListProps) {
         )}
       </div>
 
-      {/* Projects Grid */}
+      {/* Projects List */}
       {filteredProjects.length > 0 ? (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
           }}
         >
           {filteredProjects.map((project) => {
@@ -134,15 +134,16 @@ export default function ProjetosList({ initialProjects }: ProjetosListProps) {
                 key={project.id}
                 className="meta-card meta-fade-in"
                 style={{
-                  padding: '28px',
+                  padding: '20px 28px',
                   display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'between',
-                  minHeight: '260px',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '24px',
                   transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                  flexWrap: 'wrap',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
                 }}
                 onMouseLeave={(e) => {
@@ -150,29 +151,28 @@ export default function ProjetosList({ initialProjects }: ProjetosListProps) {
                   e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
                 }}
               >
-                {/* Upper info */}
-                <div style={{ flex: 1 }}>
+                {/* Left section (Project Name and Status) */}
+                <div style={{ flex: '1.5 1 250px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
                   {/* Status Badge */}
                   <div
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
-                      padding: '6px 12px',
+                      padding: '4px 10px',
                       borderRadius: '20px',
                       backgroundColor: statusConfig.bg,
                       color: statusConfig.color,
-                      fontSize: '12px',
+                      fontSize: '11px',
                       fontWeight: '800',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
-                      marginBottom: '16px',
                     }}
                   >
                     <span
                       style={{
-                        width: '8px',
-                        height: '8px',
+                        width: '6px',
+                        height: '6px',
                         borderRadius: '50%',
                         backgroundColor: statusConfig.dot,
                         display: 'inline-block',
@@ -188,110 +188,111 @@ export default function ProjetosList({ initialProjects }: ProjetosListProps) {
                       color: 'var(--meta-navy)',
                       fontSize: '20px',
                       fontWeight: '800',
-                      marginBottom: '16px',
+                      margin: 0,
                       lineHeight: '1.3',
                     }}
                   >
                     {project.nome}
                   </h3>
+                </div>
 
-                  {/* Details block */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-                    {/* Contract Code */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div
-                        style={{
-                          color: 'var(--meta-blue)',
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
+                {/* Middle info (Contract and Manager) */}
+                <div style={{ flex: '2 1 250px', display: 'flex', flexDirection: 'column', gap: '10px', justifyContent: 'center' }}>
+                  {/* Contract Code */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        color: 'var(--meta-blue)',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                          <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                      </div>
-                      <span style={{ fontSize: '14px', color: 'var(--meta-navy-50)', fontWeight: '600' }}>
-                        Contrato:{' '}
-                        <strong style={{ color: 'var(--meta-navy)' }}>
-                          {project.numero_contrato || 'Sem contrato'}
-                        </strong>
-                      </span>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
                     </div>
+                    <span style={{ fontSize: '14px', color: 'var(--meta-navy-50)', fontWeight: '600' }}>
+                      Contrato:{' '}
+                      <strong style={{ color: 'var(--meta-navy)' }}>
+                        {project.numero_contrato || 'Sem contrato'}
+                      </strong>
+                    </span>
+                  </div>
 
-                    {/* Manager */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div
-                        style={{
-                          color: 'var(--meta-blue)',
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
+                  {/* Manager */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        color: 'var(--meta-blue)',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                      </div>
-                      <span style={{ fontSize: '14px', color: 'var(--meta-navy-50)', fontWeight: '600' }}>
-                        Gerente:{' '}
-                        <strong style={{ color: 'var(--meta-navy)' }}>
-                          {project.gerente || 'Sem gerente'}
-                        </strong>
-                      </span>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
                     </div>
+                    <span style={{ fontSize: '14px', color: 'var(--meta-navy-50)', fontWeight: '600' }}>
+                      Gerente:{' '}
+                      <strong style={{ color: 'var(--meta-navy)' }}>
+                        {project.gerente || 'Sem gerente'}
+                      </strong>
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Button */}
-                <Link
-                  href={`/projetos/${project.id}`}
-                  className="btn btn-secondary"
-                  style={{
-                    width: '100%',
-                    padding: '12px 24px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    textAlign: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  Ver detalhes
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{ marginLeft: '4px' }}
+                {/* Right button */}
+                <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
+                  <Link
+                    href={`/projetos/${project.id}`}
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '12px 24px',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
                   >
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </Link>
+                    Ver detalhes
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </Link>
+                </div>
               </div>
             );
           })}
