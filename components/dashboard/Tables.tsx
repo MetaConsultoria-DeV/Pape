@@ -56,9 +56,26 @@ export function RiskMatrixTable({ rows }: { rows: RiskMatrixRow[] }) {
     return <EmptyChart message="Nenhum motivo de risco/atraso registrado por coordenação." />;
   }
 
-  const coordenacoes = Array.from(
+  const canonicalCoordenacoes = [
+    'Construção e Energia',
+    'Desenvolvimento de Máquinas',
+    'Gestão de Negócios',
+    'Otimização de Processos',
+    'Tecnologia e Desenvolvimento',
+  ];
+
+  // Find all coordinations present in the rows
+  const presentCoordenacoes = Array.from(
     new Set(rows.flatMap((row) => Object.keys(row.coordenacoes))),
-  ).slice(0, 5);
+  );
+
+  // We want to show all canonical ones, plus any other present coordination (like "Sem coordenação") that has at least one non-zero value
+  const extraCoordenacoes = presentCoordenacoes.filter(
+    (c) => !canonicalCoordenacoes.includes(c) && rows.some((row) => (row.coordenacoes[c] ?? 0) > 0)
+  );
+
+  // Pre-ordered columns: canonical first, then extra ones
+  const columns = [...canonicalCoordenacoes, ...extraCoordenacoes];
 
   return (
     <div className="dashboard-table-wrap">
@@ -66,19 +83,19 @@ export function RiskMatrixTable({ rows }: { rows: RiskMatrixRow[] }) {
         <thead>
           <tr>
             <th>Motivo selecionado</th>
-            {coordenacoes.map((coordenacao) => (
+            {columns.map((coordenacao) => (
               <th key={coordenacao}>{coordenacao}</th>
             ))}
             <th>Total</th>
           </tr>
         </thead>
         <tbody>
-          {rows.slice(0, 7).map((row) => (
+          {rows.map((row) => (
             <tr key={row.motivo}>
               <td>
                 <strong>{row.motivo}</strong>
               </td>
-              {coordenacoes.map((coordenacao) => (
+              {columns.map((coordenacao) => (
                 <td key={coordenacao}>{row.coordenacoes[coordenacao] ?? 0}</td>
               ))}
               <td>
