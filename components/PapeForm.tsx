@@ -226,7 +226,9 @@ function MembrosSelect({
             value={(field.value as string) || ''}
             onChange={(e) => field.onChange(e.target.value)}
           >
-            <option value="">Selecione seu nome…</option>
+            <option value="">
+              {name === 'respondente_nome' ? 'Selecione seu nome…' : 'Selecione um gerente…'}
+            </option>
             {membros.map((m) => (
               <option key={m.id} value={m.nome}>{m.nome}</option>
             ))}
@@ -729,7 +731,7 @@ export default function PapeForm({
       satisfacao_cliente: 3,
       servicos_projeto: [],
       membros_projeto: [],
-      gerentes_projeto: [],
+      gerente_projeto: '',
     });
     setStep(0);
     setStepHistory([0]);
