@@ -115,18 +115,18 @@ export function RiskProjectsTable({ projects }: { projects: RiskProject[] }) {
   }
 
   return (
-    <div className="dashboard-table-wrap">
-      <table className="dashboard-table dashboard-risk-projects">
+    <div className="dashboard-table-wrap" style={{ maxHeight: '280px', overflowY: 'auto' }}>
+      <table className="dashboard-table dashboard-risk-projects" style={{ minWidth: '100%' }}>
         <thead>
           <tr>
-            <th>Projeto</th>
-            <th>Status</th>
-            <th>Coordenação</th>
-            <th>Motivos</th>
+            <th style={{ position: 'sticky', top: 0, zIndex: 1, background: '#F4F7FF' }}>Projeto</th>
+            <th style={{ position: 'sticky', top: 0, zIndex: 1, background: '#F4F7FF' }}>Status</th>
+            <th style={{ position: 'sticky', top: 0, zIndex: 1, background: '#F4F7FF' }}>Coordenação</th>
+            <th style={{ position: 'sticky', top: 0, zIndex: 1, background: '#F4F7FF' }}>Motivos</th>
           </tr>
         </thead>
         <tbody>
-          {projects.slice(0, 10).map((project) => (
+          {projects.map((project) => (
             <tr key={`${project.projeto}-${project.status}`}>
               <td>
                 <strong>{project.projeto}</strong>

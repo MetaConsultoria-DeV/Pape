@@ -235,30 +235,35 @@ export function ScoreChart({
     return <ChartEmpty message="Ainda não há respostas suficientes para este indicador." />;
   }
 
+  // Calculate dynamic height based on number of items (approx 36px per project bar, min 280px)
+  const chartHeight = Math.max(280, data.length * 36);
+
   return (
-    <div className="dashboard-horizontal-chart dashboard-horizontal-chart-small">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data.slice(0, 7)}
-          layout="vertical"
-          margin={{ top: 8, right: 18, left: 18, bottom: 8 }}
-        >
-          <CartesianGrid horizontal={false} stroke="rgba(107, 114, 153, 0.24)" />
-          <XAxis
-            type="number"
-            domain={[0, 5]}
-            tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={142}
-            tick={{ fontSize: 12, fill: 'var(--meta-navy)', fontWeight: 700 }}
-          />
-          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0, 103, 255, 0.06)' }} />
-          <Bar dataKey="value" fill={color} radius={[0, 8, 8, 0]} maxBarSize={32} />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="dashboard-chart-scroll-wrap" style={{ height: '280px', overflowY: 'auto', overflowX: 'hidden' }}>
+      <div style={{ height: `${chartHeight}px`, width: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ top: 8, right: 18, left: 18, bottom: 8 }}
+          >
+            <CartesianGrid horizontal={false} stroke="rgba(107, 114, 153, 0.24)" />
+            <XAxis
+              type="number"
+              domain={[0, 5]}
+              tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={142}
+              tick={{ fontSize: 12, fill: 'var(--meta-navy)', fontWeight: 700 }}
+            />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0, 103, 255, 0.06)' }} />
+            <Bar dataKey="value" fill={color} radius={[0, 8, 8, 0]} maxBarSize={20} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
