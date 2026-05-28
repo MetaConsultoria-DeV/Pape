@@ -524,9 +524,6 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
                         </div>
                         <div>
                           <strong style={{ fontSize: '14px', color: 'var(--meta-navy)', display: 'block' }}>{g.nome}</strong>
-                          <span style={{ fontSize: '12px', color: 'var(--meta-blue)', fontWeight: '600' }}>
-                            {g.cargo} {g.coordenacao_sigla ? `(${g.coordenacao_sigla})` : ''}
-                          </span>
                         </div>
                       </div>
                     ))
