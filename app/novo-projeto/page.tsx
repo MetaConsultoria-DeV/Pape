@@ -5,6 +5,8 @@ import { StepDef } from '@/lib/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
 
+export const dynamic = 'force-dynamic';
+
 const SIM_NAO = [
   { value: 'Sim', label: 'Sim' },
   { value: 'Não', label: 'Não' },
@@ -36,26 +38,29 @@ const STEPS: StepDef[] = [
     selectConsultores('membros_projeto', 'Quem são os consultores alocados no projeto?', {
       number: 6,
     }),
+    selectConsultores('gerentes_projeto', 'Qual o gerente do projeto?', {
+      number: 7,
+    }),
   ], 'Preencha as informações iniciais do contrato.'),
 
   step('Orientador Técnico', 'Sobre o orientador', [
     radio('possui_orientador', 'O projeto possui orientador técnico?', SIM_NAO, {
-      number: 7,
+      number: 8,
       columns: 2,
     }),
     input('nome_orientador', 'Qual o nome do orientador?', {
-      number: 8,
+      number: 9,
       placeholder: 'Nome completo',
       showWhen: { field: 'possui_orientador', value: 'Sim' },
     }),
     scale('efetividade_orientador', 'Qual a efetividade do orientador?', {
-      number: 9,
+      number: 10,
       lowLabel: 'Baixa',
       highLabel: 'Alta',
       showWhen: { field: 'possui_orientador', value: 'Sim' },
     }),
     scale('disponibilidade_orientador', 'Qual a disponibilidade do orientador?', {
-      number: 10,
+      number: 11,
       lowLabel: 'Baixa',
       highLabel: 'Alta',
       showWhen: { field: 'possui_orientador', value: 'Sim' },

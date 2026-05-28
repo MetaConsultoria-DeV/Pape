@@ -493,6 +493,10 @@ export default function PapeForm({
   const [projetosLoading, setProjetosLoading] = useState(false);
   const [projetosError, setProjetosError] = useState<string | null>(null);
 
+  const showSuccessStep = mode === 'visual-project' ? step === TOTAL_STEPS + 1 : step === TOTAL_STEPS;
+  const storageKey = mode === 'visual-project' ? 'visual-project-draft' : 'pape-draft';
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
   const { control, watch, handleSubmit, reset, setValue } = useForm<PapeFormInputs>({
     resolver: mode === 'pape' ? zodResolver(papeFormSchema) : undefined,
     defaultValues: {
@@ -516,6 +520,31 @@ export default function PapeForm({
   });
 
   const values = watch();
+
+  // Load draft from LocalStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = window.localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          reset(parsed);
+        } catch (e) {
+          console.error('Erro ao ler rascunho:', e);
+        }
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [reset, storageKey]);
+
+  // Save draft to LocalStorage whenever values change
+  useEffect(() => {
+    if (!isDraftLoaded || showSuccessStep) return;
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(storageKey, JSON.stringify(values));
+    }
+  }, [values, isDraftLoaded, storageKey, showSuccessStep]);
+
   const selectedManager = membros.find((membro) => membro.nome === values.respondente_nome);
   const hasSelectedManager = mode !== 'pape' || Boolean(selectedManager);
   const selectedProject = gerenteProjetos.find((projeto) => projeto.id === Number(values.projeto_externo_id));
@@ -652,6 +681,9 @@ export default function PapeForm({
 
   const onSubmit = async (data: PapeFormInputs) => {
     if (mode === 'visual-project') {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(storageKey);
+      }
       setStep(TOTAL_STEPS + 1);
       setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
       return;
@@ -660,6 +692,9 @@ export default function PapeForm({
     setSubmitting(true);
     try {
       await axios.post(`${API_URL}/pape`, data);
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(storageKey);
+      }
       setStep(TOTAL_STEPS);
       setStepHistory([...stepHistory, TOTAL_STEPS]);
     } catch (error) {
@@ -673,13 +708,34 @@ export default function PapeForm({
   };
 
   const restartForm = () => {
-    reset();
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(storageKey);
+    }
+    reset({
+      nome_projeto: '',
+      respondente_nome: '',
+      primeira_resposta: 'Sim',
+      possui_orientador: 'Não',
+      modelo_gerenciamento: 'Tradicional',
+      houve_impedimentos: 'Não',
+      status_cronograma: 'Dentro do prazo',
+      impacto_cliente: 'Não',
+      pct_conclusao: '0-20%',
+      capacitacao_equipe: 3,
+      eficacia_metodologia: 3,
+      nivel_retrabalho: 3,
+      comunicacao_cliente: 3,
+      abertura_cliente: 3,
+      satisfacao_cliente: 3,
+      servicos_projeto: [],
+      membros_projeto: [],
+      gerentes_projeto: [],
+    });
     setStep(0);
     setStepHistory([0]);
   };
 
   const showReviewStep = mode === 'visual-project' && step === TOTAL_STEPS;
-  const showSuccessStep = mode === 'visual-project' ? step === TOTAL_STEPS + 1 : step === TOTAL_STEPS;
   const totalVisibleSteps = mode === 'visual-project' ? TOTAL_STEPS + 1 : TOTAL_STEPS;
   const currentVisibleStep = showSuccessStep ? totalVisibleSteps : Math.min(step + 1, totalVisibleSteps);
   const progress = showSuccessStep ? 100 : Math.round((currentVisibleStep / totalVisibleSteps) * 100);
