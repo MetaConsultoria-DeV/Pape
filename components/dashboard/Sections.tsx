@@ -141,13 +141,6 @@ function OverviewSection({ data }: { data: DashboardData }) {
           detail="Projetos caminhando conforme planejado."
           tone="success"
         />
-        <StatCard
-          icon={Star}
-          label="Satisfação média"
-          value={formatNumber(data.media_satisfacao)}
-          suffix="/5"
-          detail="Média da última resposta por projeto."
-        />
       </section>
 
       <section className="dashboard-overview-grid">
