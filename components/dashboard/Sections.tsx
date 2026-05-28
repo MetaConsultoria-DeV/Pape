@@ -961,7 +961,7 @@ function DetailSection({ data }: { data: DashboardData }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div className="detail-stats-grid">
             <StatCard
               icon={Star}
               label="Confiança do Cliente"
