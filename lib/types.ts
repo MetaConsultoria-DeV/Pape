@@ -10,7 +10,8 @@ export type FieldDef =
   | { type: 'checkbox'; name: string; label: string; number?: number; options: string[]; showWhen?: { field: string; value: string } }
   | { type: 'scale'; name: string; label: string; number?: number; lowLabel?: string; highLabel?: string; dictionary?: string[]; showWhen?: { field: string; value: string } }
   | { type: 'select-projetos'; name: string; label: string; number?: number }
-  | { type: 'select-membros';  name: string; label: string; number?: number };
+  | { type: 'select-membros';  name: string; label: string; number?: number }
+  | { type: 'selectServicos';  name: string; label: string; number?: number };
 
 export type StepDef = {
   eyebrow?: string | { watchField: string; map: Record<string, string> };
@@ -41,6 +42,19 @@ export interface Coordenacao {
   nome: string;
 }
 
+export interface Servico {
+  id: number;
+  nome: string;
+  sigla: string;
+}
+
+export interface ServicosPorCoordenacao {
+  coordenacao_id: number;
+  coordenacao_nome: string;
+  coordenacao_sigla: string;
+  servicos: Servico[];
+}
+
 export interface Membro {
   id: number;
   nome: string;
@@ -60,7 +74,7 @@ export interface PapeFormData {
   data_inicio?: string;
   numero_contrato?: string;
   valor_projeto?: string;
-  servicos_projeto?: string;
+  servicos_projeto?: number[];
   coordenacoes?: number[];
 
   // Orientador Técnico

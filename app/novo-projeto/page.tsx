@@ -1,19 +1,13 @@
 import PapeHeader from '@/components/PapeHeader';
 import PapeForm from '@/components/PapeForm';
-import { checkbox, input, radio, scale, step } from '@/lib/stepBuilders';
+import { input, radio, scale, selectServicos, step } from '@/lib/stepBuilders';
 import { StepDef } from '@/lib/types';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
 
 const SIM_NAO = [
   { value: 'Sim', label: 'Sim' },
   { value: 'Não', label: 'Não' },
-];
-
-const COORDENACOES = [
-  'Gestão de Negócios',
-  'Otimização de Processos',
-  'Construção e Energia',
-  'Desenvolvimento de Máquinas',
-  'Tecnologia e Desenvolvimento',
 ];
 
 const STEPS: StepDef[] = [
@@ -36,12 +30,8 @@ const STEPS: StepDef[] = [
       hint: 'Exemplo: 1.000,00 (mil reais)',
       placeholder: '1.000,00',
     }),
-    input('servicos_projeto', 'Quais os serviços do projeto?', {
+    selectServicos('servicos_projeto', 'Quais os serviços do projeto?', {
       number: 5,
-      placeholder: 'Liste os serviços contratados',
-    }),
-    checkbox('coordenacoes', 'Coordenações às quais o projeto faz parte', COORDENACOES, {
-      number: 6,
     }),
   ], 'Preencha as informações iniciais do contrato.'),
 
@@ -70,13 +60,24 @@ const STEPS: StepDef[] = [
   ], 'Informe se o projeto terá orientação técnica e complete os detalhes quando houver.'),
 ];
 
-export default function NovoProjetoPage() {
+export default async function NovoProjetoPage() {
+  let servicos = [];
+  try {
+    const response = await fetch(`${API_URL}/servicos`, { cache: 'no-store' });
+    if (response.ok) {
+      servicos = await response.json();
+    }
+  } catch (error) {
+    console.error('Erro ao buscar servicos no frontend:', error);
+  }
+
   return (
     <div className="meta-bg">
       <PapeHeader actionHref="/" actionLabel="Voltar ao PAPE" />
       <PapeForm
         projetos={[]}
         membros={[]}
+        servicos={servicos}
         steps={STEPS}
         mode="visual-project"
         submitLabel="Criar projeto →"

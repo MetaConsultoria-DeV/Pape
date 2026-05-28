@@ -6,7 +6,8 @@ import { papeFormSchema, PapeFormInputs } from '@/lib/schema';
 import { useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Projeto, Membro, StepDef, FieldDef } from '@/lib/types';
+import { Projeto, Membro, StepDef, FieldDef, ServicosPorCoordenacao } from '@/lib/types';
+import ServiceSelector from '@/components/ServiceSelector';
 import {
   FieldLabel,
   InputField,
@@ -246,6 +247,7 @@ function FieldRenderer({
   hasSelectedManager,
   projetosLoading,
   projetosError,
+  servicos,
 }: {
   field: FieldDef;
   control: Control<PapeFormInputs>;
@@ -255,6 +257,7 @@ function FieldRenderer({
   hasSelectedManager: boolean;
   projetosLoading: boolean;
   projetosError: string | null;
+  servicos: ServicosPorCoordenacao[];
 }) {
   if ('showWhen' in field && field.showWhen) {
     const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
@@ -285,6 +288,24 @@ function FieldRenderer({
       );
     case 'select-membros':
       return <MembrosSelect {...base} membros={membros} />;
+    case 'selectServicos':
+      return (
+        <Controller
+          control={control}
+          name={name}
+          render={({ field: rField, fieldState }) => (
+            <div>
+              <FieldLabel number={field.number} required>{field.label}</FieldLabel>
+              <ServiceSelector
+                servicosPorCoordenacao={servicos}
+                selectedIds={(rField.value as number[]) || []}
+                onChange={rField.onChange}
+                error={fieldState.error?.message}
+              />
+            </div>
+          )}
+        />
+      );
   }
 }
 
@@ -297,8 +318,21 @@ function isFieldVisible(field: FieldDef, values: Partial<PapeFormInputs>) {
   return true;
 }
 
-function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>) {
+function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>, servicos: ServicosPorCoordenacao[]) {
   const value = values[field.name as keyof PapeFormInputs];
+
+  if (field.type === 'selectServicos' && Array.isArray(value)) {
+    const names: string[] = [];
+    const selectedIds = value as number[];
+    servicos.forEach((grupo) => {
+      grupo.servicos.forEach((s) => {
+        if (selectedIds.includes(s.id)) {
+          names.push(`${s.nome} (${grupo.coordenacao_sigla})`);
+        }
+      });
+    });
+    return names.length > 0 ? names.join(' + ') : 'Não informado';
+  }
 
   if (Array.isArray(value)) {
     return value.length > 0 ? value.join(', ') : 'Não informado';
@@ -318,9 +352,11 @@ function formatReviewValue(field: FieldDef, values: Partial<PapeFormInputs>) {
 function ReviewStep({
   steps,
   values,
+  servicos,
 }: {
   steps: StepDef[];
   values: Partial<PapeFormInputs>;
+  servicos: ServicosPorCoordenacao[];
 }) {
   return (
     <StepCard
@@ -353,7 +389,7 @@ function ReviewStep({
                       {field.number ? `${field.number}. ` : ''}{field.label}
                     </div>
                     <div style={{ fontSize: 15, color: 'var(--meta-navy)', fontWeight: 700, lineHeight: 1.5 }}>
-                      {formatReviewValue(field, values)}
+                      {formatReviewValue(field, values, servicos)}
                     </div>
                   </div>
                 ))}
@@ -380,6 +416,7 @@ function resolveEyebrow(
 export default function PapeForm({
   projetos,
   membros,
+  servicos = [],
   steps,
   mode = 'pape',
   submitLabel,
@@ -387,6 +424,7 @@ export default function PapeForm({
 }: {
   projetos: Projeto[];
   membros: Membro[];
+  servicos?: ServicosPorCoordenacao[];
   steps: StepDef[];
   mode?: 'pape' | 'visual-project';
   submitLabel?: string;
@@ -641,13 +679,14 @@ export default function PapeForm({
                     hasSelectedManager={hasSelectedManager}
                     projetosLoading={projetosLoading}
                     projetosError={projetosError}
+                    servicos={servicos}
                   />
                 ))}
               </StepCard>
             )}
 
             {showReviewStep && (
-              <ReviewStep steps={steps} values={values} />
+              <ReviewStep steps={steps} values={values} servicos={servicos} />
             )}
 
             {showSuccessStep && (

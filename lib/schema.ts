@@ -12,7 +12,7 @@ export const papeFormSchema = z.object({
   data_inicio: z.string().optional(),
   numero_contrato: z.string().optional(),
   valor_projeto: z.string().optional(),
-  servicos_projeto: z.string().optional(),
+  servicos_projeto: z.array(z.number()).optional(),
   coordenacoes: z.array(z.number()).optional(),
 
   // Orientador
