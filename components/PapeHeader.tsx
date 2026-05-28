@@ -6,9 +6,11 @@ type PapeHeaderProps = {
   actionLabel?: string;
   dashboardHref?: string;
   dashboardLabel?: string;
+  backHref?: string;
+  backLabel?: string;
 };
 
-export default function PapeHeader({ actionHref, actionLabel, dashboardHref, dashboardLabel }: PapeHeaderProps) {
+export default function PapeHeader({ actionHref, actionLabel, dashboardHref, dashboardLabel, backHref, backLabel }: PapeHeaderProps) {
   return (
     <header className="meta-header">
       <div className="meta-header-inner">
@@ -18,6 +20,19 @@ export default function PapeHeader({ actionHref, actionLabel, dashboardHref, das
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {backHref && backLabel && (
+              <Link
+                href={backHref}
+                className="meta-header-action"
+                style={{ backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                {backLabel}
+              </Link>
+            )}
             {dashboardHref && dashboardLabel && (
               <Link 
                 href={dashboardHref} 

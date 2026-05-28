@@ -25,6 +25,8 @@ export default async function ProjetosPage() {
   return (
     <div className="meta-bg">
       <PapeHeader 
+        backHref="/"
+        backLabel="Voltar ao PAPE"
         actionHref="/novo-projeto" 
         actionLabel="Criar novo projeto" 
         dashboardHref="/dashboard"
