@@ -58,18 +58,6 @@ const STEPS: StepDef[] = [
       placeholder: 'Nome completo',
       showWhen: { field: 'possui_orientador', value: 'Sim' },
     }),
-    scale('efetividade_orientador', 'Qual a efetividade do orientador?', {
-      number: 11,
-      lowLabel: 'Baixa',
-      highLabel: 'Alta',
-      showWhen: { field: 'possui_orientador', value: 'Sim' },
-    }),
-    scale('disponibilidade_orientador', 'Qual a disponibilidade do orientador?', {
-      number: 12,
-      lowLabel: 'Baixa',
-      highLabel: 'Alta',
-      showWhen: { field: 'possui_orientador', value: 'Sim' },
-    }),
   ], 'Informe se o projeto terá orientação técnica e complete os detalhes quando houver.'),
 ];
 
