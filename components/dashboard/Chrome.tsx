@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
   Activity,
@@ -98,6 +101,22 @@ export function DashboardShell({
   children: ReactNode;
 }) {
   const activeSection = getDashboardSection(activeSlug);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const dataInicio = searchParams.get('data_inicio') || '';
+  const dataFim = searchParams.get('data_fim') || '';
+
+  const handleDateChange = (key: 'data_inicio' | 'data_fim', value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="meta-bg min-h-screen pb-20">
@@ -132,22 +151,57 @@ export function DashboardShell({
 
       <main className="dashboard-shell">
         <nav className="dashboard-tabs" aria-label="Seções do dashboard">
-          {DASHBOARD_SECTIONS.filter((section) => section.enabled).map((section) => {
-            const Icon = getSectionIcon(section.slug);
-            const active = section.slug === activeSlug;
+          <div className="dashboard-tabs-links">
+            {DASHBOARD_SECTIONS.filter((section) => section.enabled).map((section) => {
+              const Icon = getSectionIcon(section.slug);
+              const active = section.slug === activeSlug;
 
-            return (
-              <Link
-                className={`dashboard-tab ${active ? 'dashboard-tab-active' : ''}`}
-                href={`/dashboard/${section.slug}`}
-                aria-current={active ? 'page' : undefined}
-                key={section.slug}
-              >
-                <Icon size={18} aria-hidden />
-                {section.label}
-              </Link>
-            );
-          })}
+              const params = new URLSearchParams();
+              const pId = searchParams.get('projeto_id');
+              const dInicio = searchParams.get('data_inicio');
+              const dFim = searchParams.get('data_fim');
+              
+              if (dInicio) params.set('data_inicio', dInicio);
+              if (dFim) params.set('data_fim', dFim);
+              if (section.slug === 'detalhe' && pId) {
+                params.set('projeto_id', pId);
+              }
+              
+              const queryString = params.toString();
+              const href = `/dashboard/${section.slug}${queryString ? `?${queryString}` : ''}`;
+
+              return (
+                <Link
+                  className={`dashboard-tab ${active ? 'dashboard-tab-active' : ''}`}
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  key={section.slug}
+                >
+                  <Icon size={18} aria-hidden />
+                  {section.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="dashboard-global-filters">
+            <span className="dashboard-filters-label">Data de Resposta</span>
+            <input
+              type="date"
+              value={dataInicio}
+              onChange={(e) => handleDateChange('data_inicio', e.target.value)}
+              className="dashboard-global-date-input"
+              aria-label="Data de início"
+            />
+            <span className="dashboard-filters-separator">a</span>
+            <input
+              type="date"
+              value={dataFim}
+              onChange={(e) => handleDateChange('data_fim', e.target.value)}
+              className="dashboard-global-date-input"
+              aria-label="Data de fim"
+            />
+          </div>
         </nav>
 
         {children}

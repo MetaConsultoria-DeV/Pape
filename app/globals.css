@@ -992,14 +992,27 @@ label {
 .dashboard-tabs {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 18px;
-  padding: 8px;
+  padding: 8px 16px;
   border: 1px solid rgba(229, 232, 242, 0.78);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.88);
   box-shadow: var(--shadow-md);
+}
+
+.dashboard-tabs-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-tabs-links::-webkit-scrollbar {
+  display: none;
 }
 
 .dashboard-tab {
@@ -1478,5 +1491,68 @@ label {
   }
   .back-circle-button {
     align-self: flex-end;
+  }
+}
+
+/* Global Date Filters in Navigation Bar */
+.dashboard-global-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  color: var(--meta-navy-50);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.dashboard-filters-label {
+  letter-spacing: 0.1em;
+  color: var(--meta-navy-50);
+}
+
+.dashboard-filters-separator {
+  color: var(--meta-navy-30);
+  text-transform: lowercase;
+  font-weight: 700;
+}
+
+.dashboard-global-date-input {
+  background: rgba(19, 25, 54, 0.05);
+  border: 1px solid rgba(19, 25, 54, 0.12);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  color: var(--meta-navy);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 750;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.dashboard-global-date-input:focus {
+  border-color: var(--meta-blue);
+  background: rgba(19, 25, 54, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 103, 255, 0.15);
+}
+
+@media (max-width: 820px) {
+  .dashboard-tabs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .dashboard-tabs-links {
+    width: 100%;
+  }
+
+  .dashboard-global-filters {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(19, 25, 54, 0.1);
   }
 }

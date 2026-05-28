@@ -13,6 +13,8 @@ type DashboardRouteProps = {
   }>;
   searchParams: Promise<{
     projeto_id?: string;
+    data_inicio?: string;
+    data_fim?: string;
   }>;
 };
 
@@ -34,13 +36,13 @@ export async function generateMetadata({ params }: DashboardRouteProps): Promise
 
 export default async function DashboardSlugPage({ params, searchParams }: DashboardRouteProps) {
   const { slug } = await params;
-  const { projeto_id } = await searchParams;
+  const { projeto_id, data_inicio, data_fim } = await searchParams;
 
   if (!isEnabledDashboardSlug(slug)) {
     notFound();
   }
 
-  const data = await getDashboardData(projeto_id);
+  const data = await getDashboardData(projeto_id, data_inicio, data_fim);
 
   if (!data) {
     return (

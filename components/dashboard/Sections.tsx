@@ -840,53 +840,11 @@ function DetailSection({ data }: { data: DashboardData }) {
     projetos: [],
   };
 
-  const allDates = useMemo(() => {
-    if (!detalhe.historico) return [];
-    return detalhe.historico
-      .map((h) => h.data_resposta)
-      .filter((d): d is string => !!d)
-      .sort();
-  }, [detalhe.historico]);
-
-  const defaultMinDate = allDates.length ? allDates[0] : '';
-  const defaultMaxDate = allDates.length ? allDates[allDates.length - 1] : '';
-
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-
-  const activeStartDate = startDate || defaultMinDate;
-  const activeEndDate = endDate || defaultMaxDate;
-
   const handleProjectChange = (projectId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('projeto_id', projectId);
     router.push(`${pathname}?${params.toString()}`);
   };
-
-  const filteredHistorico = useMemo(() => {
-    if (!detalhe.historico) return [];
-    return detalhe.historico.filter((row) => {
-      if (!row.data_resposta) return true;
-      const d = row.data_resposta;
-      const startSatisfied = !activeStartDate || d >= activeStartDate;
-      const endSatisfied = !activeEndDate || d <= activeEndDate;
-      return startSatisfied && endSatisfied;
-    });
-  }, [detalhe.historico, activeStartDate, activeEndDate]);
-
-  const filteredAndamento = useMemo(() => {
-    if (!detalhe.andamento) return [];
-    return detalhe.andamento.filter((point) => {
-      const parts = point.name.split('/');
-      if (parts.length === 3) {
-        const yyyymmdd = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const startSatisfied = !activeStartDate || yyyymmdd >= activeStartDate;
-        const endSatisfied = !activeEndDate || yyyymmdd <= activeEndDate;
-        return startSatisfied && endSatisfied;
-      }
-      return true;
-    });
-  }, [detalhe.andamento, activeStartDate, activeEndDate]);
 
   const recalculatedMetricas = useMemo(() => {
     const sum = {
@@ -906,7 +864,7 @@ function DetailSection({ data }: { data: DashboardData }) {
       suficiencia_orcamento: 0,
     };
 
-    filteredHistorico.forEach((row) => {
+    detalhe.historico.forEach((row) => {
       if (row.confianca_cliente !== undefined && row.confianca_cliente > 0) {
         sum.confianca_cliente += row.confianca_cliente;
         count.confianca_cliente++;
@@ -941,21 +899,7 @@ function DetailSection({ data }: { data: DashboardData }) {
       nivel_retrabalho: count.nivel_retrabalho ? sum.nivel_retrabalho / count.nivel_retrabalho : 0,
       suficiencia_orcamento: count.suficiencia_orcamento ? sum.suficiencia_orcamento / count.suficiencia_orcamento : 0,
     };
-  }, [filteredHistorico]);
-
-  const recalculatedMotivos = useMemo(() => {
-    const counts: Record<string, number> = {};
-    filteredHistorico.forEach((row) => {
-      if (row.motivos_atraso) {
-        row.motivos_atraso.forEach((motivo) => {
-          counts[motivo] = (counts[motivo] || 0) + 1;
-        });
-      }
-    });
-    return Object.entries(counts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-  }, [filteredHistorico]);
+  }, [detalhe.historico]);
 
   if (!detalhe.projeto_foco) {
     return (
@@ -988,28 +932,6 @@ function DetailSection({ data }: { data: DashboardData }) {
           </select>
         </div>
 
-        <div className="date-filter-card">
-          <span>Data de Resposta</span>
-          <div className="date-inputs-row">
-            <input
-              type="date"
-              value={activeStartDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="date-input-field"
-              min={defaultMinDate}
-              max={defaultMaxDate}
-            />
-            <input
-              type="date"
-              value={activeEndDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="date-input-field"
-              min={defaultMinDate}
-              max={defaultMaxDate}
-            />
-          </div>
-        </div>
-
         <Link href="/dashboard/visao-geral" className="back-circle-button" title="Voltar para Visão Geral">
           <ArrowLeft size={24} />
         </Link>
@@ -1024,7 +946,7 @@ function DetailSection({ data }: { data: DashboardData }) {
               title="Respostas do projeto em foco"
               description="Leitura operacional das respostas PAPE no período selecionado."
             />
-            <DetailHistoryTable rows={filteredHistorico} />
+            <DetailHistoryTable rows={detalhe.historico} />
           </section>
 
           <section className="dashboard-card dashboard-chart-card">
@@ -1034,7 +956,7 @@ function DetailSection({ data }: { data: DashboardData }) {
               title="Andamento do Projeto"
               description="Histórico da faixa de conclusão ao longo das respostas PAPE."
             />
-            <ProgressLineChart data={filteredAndamento} />
+            <ProgressLineChart data={detalhe.andamento} />
           </section>
         </div>
 
@@ -1092,7 +1014,7 @@ function DetailSection({ data }: { data: DashboardData }) {
               description="Tipos de risco recorrentes citados no período selecionado."
             />
             <MotivesChart
-              data={recalculatedMotivos}
+              data={detalhe.motivos_atraso}
               emptyMessage="Nenhum motivo de risco/atraso registrado para o período selecionado."
             />
           </section>
