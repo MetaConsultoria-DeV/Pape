@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PapeHeader from '@/components/PapeHeader';
 import EditProjectButton from '@/components/EditProjectButton';
+import DeleteProjectButton from '@/components/DeleteProjectButton';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
 
@@ -262,8 +263,9 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
             </h2>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
             <EditProjectButton projeto={projeto} />
+            <DeleteProjectButton projetoId={projeto.id} projetoNome={projeto.nome} />
             <Link 
               href="/projetos"
               className="btn btn-secondary"
