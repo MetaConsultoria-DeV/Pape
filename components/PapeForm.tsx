@@ -1083,7 +1083,7 @@ export default function PapeForm({
                   <button onClick={restartForm} className="btn btn-primary">
                     {mode === 'visual-project' ? '↻ Criar outro projeto' : '↻ Responder novamente'}
                   </button>
-                  <button onClick={() => router.push('/')} className="btn btn-secondary">Voltar ao início</button>
+                  <button onClick={restartForm} className="btn btn-secondary">Voltar ao início</button>
                 </div>
               </div>
             )}
