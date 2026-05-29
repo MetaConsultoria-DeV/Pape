@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { MetaSymbol } from '@/components/ui';
 
 type PapeHeaderProps = {
@@ -16,7 +17,13 @@ export default function PapeHeader({ actionHref, actionLabel, dashboardHref, das
       <div className="meta-header-inner">
         <div className="meta-header-top">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <img src="/logos/wordmark-dark.png" alt="Meta Consultoria" style={{ height: '36px' }} />
+            <Image
+              src="/logos/wordmark-dark.png"
+              alt="Meta Consultoria"
+              width={109}
+              height={36}
+              priority
+            />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
