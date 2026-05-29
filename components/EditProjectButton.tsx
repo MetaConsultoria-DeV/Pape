@@ -48,11 +48,15 @@ type Props = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+const REQUIRED_PASSWORD = 'ProjetosDib';
 
 export default function EditProjectButton({ projeto }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // Form states
   const [nome, setNome] = useState(projeto.nome);
@@ -77,15 +81,27 @@ export default function EditProjectButton({ projeto }: Props) {
     setIsOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome.trim()) {
       setError('O nome do projeto é obrigatório.');
       return;
     }
+    setError(null);
+    setSenha('');
+    setPasswordError(null);
+    setIsPasswordOpen(true);
+  };
+
+  const handleConfirmSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (senha !== REQUIRED_PASSWORD) {
+      setPasswordError('Senha incorreta. Verifique e tente novamente.');
+      return;
+    }
 
     setLoading(true);
-    setError(null);
+    setPasswordError(null);
 
     const payload = {
       nome: nome.trim(),
@@ -111,11 +127,12 @@ export default function EditProjectButton({ projeto }: Props) {
         throw new Error(errData.detail || 'Ocorreu um erro ao salvar as alterações.');
       }
 
+      setIsPasswordOpen(false);
       setIsOpen(false);
       router.refresh();
     } catch (err: any) {
       console.error('Erro ao editar projeto:', err);
-      setError(err.message || 'Erro de conexão com o servidor.');
+      setPasswordError(err.message || 'Erro de conexão com o servidor.');
     } finally {
       setLoading(false);
     }
@@ -397,6 +414,267 @@ export default function EditProjectButton({ projeto }: Props) {
 
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {isPasswordOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(19, 25, 54, 0.6)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '20px',
+          }}
+          onClick={() => {
+            if (!loading) setIsPasswordOpen(false);
+          }}
+        >
+          <div
+            className="meta-card"
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              padding: '36px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              border: '1px solid rgba(0, 103, 255, 0.25)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ícone de alerta (Azul) */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
+              <div
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 103, 255, 0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(0, 103, 255, 0.25)',
+                }}
+              >
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--meta-blue)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h3
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: '800',
+                    color: 'var(--meta-navy)',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  Confirmar Alterações
+                </h3>
+                <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
+                  Você está prestes a alterar os dados do projeto{' '}
+                  <strong style={{ color: 'var(--meta-navy)' }}>&quot;{projeto.nome}&quot;</strong>.
+                  Para confirmar, digite a senha correspondente.
+                </p>
+              </div>
+            </div>
+
+            {/* Aviso informativo (Azul) */}
+            <div
+              style={{
+                backgroundColor: 'rgba(0, 103, 255, 0.06)',
+                border: '1px solid rgba(0, 103, 255, 0.2)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px 16px',
+                fontSize: '13px',
+                color: 'var(--meta-blue)',
+                fontWeight: '600',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ flexShrink: 0, marginTop: '1px' }}
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>
+                Esta ação atualizará as informações do contrato, orientador e identificação do projeto no banco de dados.
+              </span>
+            </div>
+
+            {/* Formulário de senha */}
+            <form onSubmit={handleConfirmSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label
+                  htmlFor="edit-password"
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    color: 'var(--meta-navy)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Digite a senha de confirmação
+                </label>
+                <input
+                  id="edit-password"
+                  type="password"
+                  className="meta-input"
+                  value={senha}
+                  onChange={(e) => {
+                    setSenha(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  placeholder="Senha de edição"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={loading}
+                  style={{
+                    borderColor: passwordError
+                      ? 'rgba(229, 72, 77, 0.6)'
+                      : senha === REQUIRED_PASSWORD && senha.length > 0
+                      ? 'rgba(31, 191, 106, 0.6)'
+                      : undefined,
+                  }}
+                />
+              </div>
+
+              {/* Mensagem de erro */}
+              {passwordError && (
+                <div
+                  style={{
+                    backgroundColor: 'rgba(229, 72, 77, 0.08)',
+                    color: 'var(--meta-danger)',
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '13.5px',
+                    fontWeight: '600',
+                    border: '1px solid rgba(229, 72, 77, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  {passwordError}
+                </div>
+              )}
+
+              {/* Botões */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '12px',
+                  paddingTop: '8px',
+                  borderTop: '1px solid var(--meta-navy-10)',
+                  marginTop: '4px',
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={loading}
+                  onClick={() => setIsPasswordOpen(false)}
+                  style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={loading || !senha}
+                  style={{
+                    padding: '12px 24px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: loading || !senha
+                      ? 'rgba(0, 103, 255, 0.3)'
+                      : 'var(--meta-blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    cursor: loading || !senha ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <svg
+                        className="animate-spin"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25"></circle>
+                        <path
+                          fill="currentColor"
+                          d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      Confirmar
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

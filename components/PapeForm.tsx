@@ -602,6 +602,8 @@ function resolveEyebrow(
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
+const REQUIRED_PASSWORD = 'ProjetosDib';
+
 export default function PapeForm({
   projetos,
   membros,
@@ -626,6 +628,10 @@ export default function PapeForm({
   const [step, setStep] = useState(0);
   const [stepHistory, setStepHistory] = useState<number[]>([0]);
   const [submitting, setSubmitting] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [senha, setSenha] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [pendingData, setPendingData] = useState<PapeFormInputs | null>(null);
   const [gerenteProjetos, setGerenteProjetos] = useState<Projeto[]>(mode === 'pape' ? [] : projetos);
   const [projetosLoading, setProjetosLoading] = useState(false);
   const [projetosError, setProjetosError] = useState<string | null>(null);
@@ -821,35 +827,51 @@ export default function PapeForm({
     }
   };
 
+  const handleConfirmCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (senha !== REQUIRED_PASSWORD) {
+      setPasswordError('Senha incorreta. Verifique e tente novamente.');
+      return;
+    }
+    if (!pendingData) return;
+
+    setSubmitting(true);
+    setPasswordError(null);
+    try {
+      await axios.post(`${API_URL}/projetos`, {
+        nome_projeto: pendingData.nome_projeto,
+        descricao_projeto: pendingData.descricao_projeto,
+        data_inicio: pendingData.data_inicio,
+        numero_contrato: pendingData.numero_contrato,
+        valor_projeto: pendingData.valor_projeto,
+        servicos_projeto: pendingData.servicos_projeto,
+        membros_projeto: pendingData.membros_projeto,
+        gerente_projeto: pendingData.gerente_projeto,
+        possui_orientador: pendingData.possui_orientador,
+        nome_orientador: pendingData.nome_orientador,
+      });
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(storageKey);
+      }
+      setIsPasswordOpen(false);
+      setStep(TOTAL_STEPS + 1);
+      setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
+    } catch (error) {
+      const detail = axios.isAxiosError(error)
+        ? error.response?.data?.detail || error.message
+        : 'Erro inesperado';
+      setPasswordError(`Erro ao criar projeto: ${detail}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const onSubmit = async (data: PapeFormInputs) => {
     if (mode === 'visual-project') {
-      setSubmitting(true);
-      try {
-        await axios.post(`${API_URL}/projetos`, {
-          nome_projeto: data.nome_projeto,
-          descricao_projeto: data.descricao_projeto,
-          data_inicio: data.data_inicio,
-          numero_contrato: data.numero_contrato,
-          valor_projeto: data.valor_projeto,
-          servicos_projeto: data.servicos_projeto,
-          membros_projeto: data.membros_projeto,
-          gerente_projeto: data.gerente_projeto,
-          possui_orientador: data.possui_orientador,
-          nome_orientador: data.nome_orientador,
-        });
-        if (typeof window !== 'undefined') {
-          window.localStorage.removeItem(storageKey);
-        }
-        setStep(TOTAL_STEPS + 1);
-        setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
-      } catch (error) {
-        const detail = axios.isAxiosError(error)
-          ? error.response?.data?.detail || error.message
-          : 'Erro inesperado';
-        alert(`Erro ao criar projeto: ${detail}`);
-      } finally {
-        setSubmitting(false);
-      }
+      setPendingData(data);
+      setSenha('');
+      setPasswordError(null);
+      setIsPasswordOpen(true);
       return;
     }
 
@@ -1138,6 +1160,266 @@ export default function PapeForm({
           </div>
         </div>
       </main>
+      {isPasswordOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(19, 25, 54, 0.6)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '20px',
+          }}
+          onClick={() => {
+            if (!submitting) setIsPasswordOpen(false);
+          }}
+        >
+          <div
+            className="meta-card"
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              padding: '36px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              border: '1px solid rgba(0, 103, 255, 0.25)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ícone de alerta (Azul) */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
+              <div
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 103, 255, 0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(0, 103, 255, 0.25)',
+                }}
+              >
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--meta-blue)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h3
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: '800',
+                    color: 'var(--meta-navy)',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  Confirmar Cadastro de Projeto
+                </h3>
+                <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
+                  Você está prestes a cadastrar um novo projeto{' '}
+                  <strong style={{ color: 'var(--meta-navy)' }}>&quot;{pendingData?.nome_projeto}&quot;</strong>.
+                  Para confirmar, digite a senha correspondente.
+                </p>
+              </div>
+            </div>
+
+            {/* Aviso informativo (Azul) */}
+            <div
+              style={{
+                backgroundColor: 'rgba(0, 103, 255, 0.06)',
+                border: '1px solid rgba(0, 103, 255, 0.2)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px 16px',
+                fontSize: '13px',
+                color: 'var(--meta-blue)',
+                fontWeight: '600',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ flexShrink: 0, marginTop: '1px' }}
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>
+                Esta ação criará o registro oficial do projeto, incluindo contrato, serviços e membros no banco de dados.
+              </span>
+            </div>
+
+            {/* Formulário de senha */}
+            <form onSubmit={handleConfirmCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label
+                  htmlFor="create-password"
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    color: 'var(--meta-navy)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Digite a senha de confirmação
+                </label>
+                <input
+                  id="create-password"
+                  type="password"
+                  className="meta-input"
+                  value={senha}
+                  onChange={(e) => {
+                    setSenha(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  placeholder="Senha de criação"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={submitting}
+                  style={{
+                    borderColor: passwordError
+                      ? 'rgba(229, 72, 77, 0.6)'
+                      : senha === REQUIRED_PASSWORD && senha.length > 0
+                      ? 'rgba(31, 191, 106, 0.6)'
+                      : undefined,
+                  }}
+                />
+              </div>
+
+              {/* Mensagem de erro */}
+              {passwordError && (
+                <div
+                  style={{
+                    backgroundColor: 'rgba(229, 72, 77, 0.08)',
+                    color: 'var(--meta-danger)',
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '13.5px',
+                    fontWeight: '600',
+                    border: '1px solid rgba(229, 72, 77, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  {passwordError}
+                </div>
+              )}
+
+              {/* Botões */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '12px',
+                  paddingTop: '8px',
+                  borderTop: '1px solid var(--meta-navy-10)',
+                  marginTop: '4px',
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={submitting}
+                  onClick={() => setIsPasswordOpen(false)}
+                  style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={submitting || !senha}
+                  style={{
+                    padding: '12px 24px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: submitting || !senha
+                      ? 'rgba(0, 103, 255, 0.3)'
+                      : 'var(--meta-blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    cursor: submitting || !senha ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {submitting ? (
+                    <>
+                      <svg
+                        className="animate-spin"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25"></circle>
+                        <path
+                          fill="currentColor"
+                          d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Criando...
+                    </>
+                  ) : (
+                    <>
+                      Confirmar
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
