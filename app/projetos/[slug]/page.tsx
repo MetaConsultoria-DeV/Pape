@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PapeHeader from '@/components/PapeHeader';
 import EditProjectButton from '@/components/EditProjectButton';
 import DeleteProjectButton from '@/components/DeleteProjectButton';
+import DeleteAcompanhamentoButton from '@/components/DeleteAcompanhamentoButton';
 import { SERVER_API_URL } from '@/lib/api';
 
 type Member = {
@@ -796,7 +797,7 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
                         {formatDate(acomp.data_resposta)}
                       </span>
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <span
                           style={{
                             fontSize: '11px',
@@ -823,6 +824,11 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
                         >
                           Conclusão: {acomp.pct_conclusao}
                         </span>
+
+                        <DeleteAcompanhamentoButton
+                          acompanhamentoId={acomp.id}
+                          dataRespostaFormatada={formatDate(acomp.data_resposta)}
+                        />
                       </div>
                     </div>
 
