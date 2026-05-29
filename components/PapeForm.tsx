@@ -855,16 +855,28 @@ export default function PapeForm({
 
     setSubmitting(true);
     try {
-      await axios.post(`${API_URL}/pape`, data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { servicos_projeto, membros_projeto, gerente_projeto, nome_projeto, ...papePayload } = data;
+      await axios.post(`${API_URL}/pape`, papePayload);
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(storageKey);
       }
       setStep(TOTAL_STEPS);
       setStepHistory([...stepHistory, TOTAL_STEPS]);
     } catch (error) {
-      const detail = axios.isAxiosError(error)
-        ? error.response?.data?.detail || error.message
-        : 'Erro inesperado';
+      let detail = 'Erro inesperado';
+      if (axios.isAxiosError(error)) {
+        const raw = error.response?.data?.detail;
+        if (typeof raw === 'string') {
+          detail = raw;
+        } else if (Array.isArray(raw)) {
+          detail = raw.map((e: { loc?: string[]; msg: string }) =>
+            e.loc ? `${e.loc.slice(1).join('.')}: ${e.msg}` : e.msg
+          ).join('\n');
+        } else {
+          detail = error.message;
+        }
+      }
       alert(`Erro ao enviar: ${detail}`);
     } finally {
       setSubmitting(false);
