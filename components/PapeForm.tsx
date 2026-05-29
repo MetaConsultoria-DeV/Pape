@@ -856,7 +856,15 @@ export default function PapeForm({
     setSubmitting(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { servicos_projeto, membros_projeto, gerente_projeto, nome_projeto, ...papePayload } = data;
+      const { servicos_projeto, membros_projeto, gerente_projeto, nome_projeto, ...restData } = data;
+      const papePayload = {
+        ...restData,
+        suficiencia_orcamento: restData.suficiencia_orcamento === 'Não necessitou'
+          ? 'Não necessitou'
+          : restData.suficiencia_orcamento
+            ? Number(restData.suficiencia_orcamento)
+            : undefined,
+      };
       await axios.post(`${API_URL}/pape`, papePayload);
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(storageKey);
