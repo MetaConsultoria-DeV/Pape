@@ -731,11 +731,33 @@ export default function PapeForm({
 
   const onSubmit = async (data: PapeFormInputs) => {
     if (mode === 'visual-project') {
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(storageKey);
+      setSubmitting(true);
+      try {
+        await axios.post(`${API_URL}/projetos`, {
+          nome_projeto: data.nome_projeto,
+          descricao_projeto: data.descricao_projeto,
+          data_inicio: data.data_inicio,
+          numero_contrato: data.numero_contrato,
+          valor_projeto: data.valor_projeto,
+          servicos_projeto: data.servicos_projeto,
+          membros_projeto: data.membros_projeto,
+          gerente_projeto: data.gerente_projeto,
+          possui_orientador: data.possui_orientador,
+          nome_orientador: data.nome_orientador,
+        });
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(storageKey);
+        }
+        setStep(TOTAL_STEPS + 1);
+        setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
+      } catch (error) {
+        const detail = axios.isAxiosError(error)
+          ? error.response?.data?.detail || error.message
+          : 'Erro inesperado';
+        alert(`Erro ao criar projeto: ${detail}`);
+      } finally {
+        setSubmitting(false);
       }
-      setStep(TOTAL_STEPS + 1);
-      setStepHistory([...stepHistory, TOTAL_STEPS + 1]);
       return;
     }
 
@@ -879,7 +901,7 @@ export default function PapeForm({
                 </h2>
                 <p style={{ fontSize: 16, color: 'var(--meta-navy-50)', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 36px' }}>
                   {mode === 'visual-project'
-                    ? 'Esta tela ainda não salva no banco de dados. Ela deixa o fluxo pronto para conectar ao backend quando o endpoint de criação de projetos estiver disponível.'
+                    ? 'O projeto foi criado com sucesso e já está disponível no sistema.'
                     : 'Suas respostas foram salvas e serão processadas pela equipe Meta. Seu acompanhamento é fundamental para o sucesso do projeto.'}
                 </p>
                 {mode === 'pape' && (
