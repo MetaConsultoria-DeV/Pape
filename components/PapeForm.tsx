@@ -287,6 +287,58 @@ function MembrosSelect({
 
 // ── Renderer genérico por tipo de campo ──────────────────────────────────────
 
+function OrientadorCard({ nome }: { nome: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        padding: '20px 24px',
+        background: 'linear-gradient(135deg, rgba(0,103,255,0.06) 0%, rgba(42,216,255,0.06) 100%)',
+        border: '1.5px solid rgba(0,103,255,0.18)',
+        borderRadius: 'var(--radius-md, 12px)',
+      }}
+    >
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: 'var(--meta-gradient)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: 13,
+          fontWeight: 800,
+          letterSpacing: '0.04em',
+          flexShrink: 0,
+        }}
+      >
+        OT
+      </div>
+      <div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--meta-navy-50)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.07em',
+            marginBottom: 4,
+          }}
+        >
+          Orientador Técnico
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--meta-navy)' }}>
+          {nome}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FieldRenderer({
   field,
   control,
@@ -298,6 +350,7 @@ function FieldRenderer({
   projetosError,
   servicos,
   membrosPorCoordenacao = [],
+  selectedProject,
 }: {
   field: FieldDef;
   control: Control<PapeFormInputs>;
@@ -309,10 +362,16 @@ function FieldRenderer({
   projetosError: string | null;
   servicos: ServicosPorCoordenacao[];
   membrosPorCoordenacao?: MembrosPorCoordenacao[];
+  selectedProject?: Projeto;
 }) {
   if ('showWhen' in field && field.showWhen) {
     const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
     if (watched !== field.showWhen.value) return null;
+  }
+
+  // Orientador já cadastrado no banco: exibe card no lugar do input de nome
+  if (field.name === 'nome_orientador' && selectedProject?.nome_orientador) {
+    return <OrientadorCard nome={selectedProject.nome_orientador} />;
   }
 
   const name = field.name as Path<PapeFormInputs>;
@@ -864,6 +923,7 @@ export default function PapeForm({
                     projetosError={projetosError}
                     servicos={servicos}
                     membrosPorCoordenacao={membrosPorCoordenacao}
+                    selectedProject={selectedProject}
                   />
                 ))}
               </StepCard>
