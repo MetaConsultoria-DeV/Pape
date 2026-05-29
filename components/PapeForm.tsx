@@ -728,7 +728,7 @@ export default function PapeForm({
       .catch((error) => {
         if (axios.isCancel(error) || controller.signal.aborted) return;
         setGerenteProjetos([]);
-        setProjetosError('NÃ£o foi possÃ­vel carregar os projetos desta gerente.');
+        setProjetosError('Não foi possível carregar os projetos desta gerente.');
       })
       .finally(() => {
         if (!controller.signal.aborted) setProjetosLoading(false);
