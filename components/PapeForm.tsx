@@ -18,7 +18,7 @@ import {
   StepCard,
 } from '@/components/ui';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+import { PUBLIC_API_URL } from '@/lib/api';
 
 // ── Wrappers tipados por tipo de questão ─────────────────────────────────────
 
@@ -718,7 +718,7 @@ export default function PapeForm({
     setProjetosError(null);
 
     axios
-      .get<Projeto[]>(`${API_URL}/projetos`, {
+      .get<Projeto[]>(`${PUBLIC_API_URL}/projetos`, {
         params: { gerente_id: selectedManager.id },
         signal: controller.signal,
       })
@@ -888,7 +888,7 @@ export default function PapeForm({
             ? Number(restData.suficiencia_orcamento)
             : undefined,
       };
-      await axios.post(`${API_URL}/pape`, papePayload);
+      await axios.post(`${PUBLIC_API_URL}/pape`, papePayload);
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(storageKey);
       }

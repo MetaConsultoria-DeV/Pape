@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation';
 import PapeHeader from '@/components/PapeHeader';
 import EditProjectButton from '@/components/EditProjectButton';
 import DeleteProjectButton from '@/components/DeleteProjectButton';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+import { SERVER_API_URL } from '@/lib/api';
 
 type Member = {
   id: number;
@@ -71,7 +70,7 @@ type Props = {
 
 async function getProjetoDetalhes(id: string): Promise<ProjectDetails | null> {
   try {
-    const res = await fetch(`${API_URL}/projetos/${id}`, { cache: 'no-store' });
+    const res = await fetch(`${SERVER_API_URL}/projetos/${id}`, { cache: 'no-store' });
     if (!res.ok) {
       if (res.status === 404) return null;
       throw new Error(`Failed to fetch project details: ${res.status}`);

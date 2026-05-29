@@ -1,6 +1,5 @@
 import type { DashboardData } from './types';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+import { SERVER_API_URL } from '@/lib/api';
 
 export async function getDashboardData(
   projetoId?: string,
@@ -8,7 +7,7 @@ export async function getDashboardData(
   dataFim?: string
 ): Promise<DashboardData | null> {
   try {
-    let url = `${API_URL}/dashboard/pape`;
+    let url = `${SERVER_API_URL}/dashboard/pape`;
     const params = new URLSearchParams();
     if (projetoId) {
       params.append('projeto_id', projetoId);

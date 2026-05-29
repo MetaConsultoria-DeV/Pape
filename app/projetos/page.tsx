@@ -1,13 +1,12 @@
 import PapeHeader from '@/components/PapeHeader';
 import ProjetosList from '@/components/ProjetosList';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+import { SERVER_API_URL } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
 async function getProjetos() {
   try {
-    const res = await fetch(`${API_URL}/projetos/all`, { cache: 'no-store' });
+    const res = await fetch(`${SERVER_API_URL}/projetos/all`, { cache: 'no-store' });
     if (!res.ok) {
       console.error('HTTP error fetching projects:', res.status);
       return [];

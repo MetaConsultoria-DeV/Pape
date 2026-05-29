@@ -2,8 +2,7 @@ import PapeHeader from '@/components/PapeHeader';
 import PapeForm from '@/components/PapeForm';
 import { input, textarea, radio, scale, selectServicos, selectConsultores, selectMembros, step } from '@/lib/stepBuilders';
 import { StepDef } from '@/lib/types';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+import { SERVER_API_URL } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,9 +66,9 @@ export default async function NovoProjetoPage() {
   let membros = [];
   try {
     const [resServicos, resMembrosPorCoord, resMembros] = await Promise.all([
-      fetch(`${API_URL}/servicos`, { cache: 'no-store' }),
-      fetch(`${API_URL}/membros-por-coordenacao`, { cache: 'no-store' }),
-      fetch(`${API_URL}/membros`, { cache: 'no-store' }),
+      fetch(`${SERVER_API_URL}/servicos`, { cache: 'no-store' }),
+      fetch(`${SERVER_API_URL}/membros-por-coordenacao`, { cache: 'no-store' }),
+      fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' }),
     ]);
 
     if (resServicos.ok) {

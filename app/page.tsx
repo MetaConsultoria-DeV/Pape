@@ -2,8 +2,7 @@ import { Projeto, Membro, StepDef } from '@/lib/types';
 import { input, radio, checkbox, scale, selectProjetos, selectMembros, step } from '@/lib/stepBuilders';
 import PapeHeader from '@/components/PapeHeader';
 import PapeForm from '@/components/PapeForm';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+import { SERVER_API_URL } from '@/lib/api';
 
 // =============================================================================
 // OPÇÕES DE RESPOSTA
@@ -286,7 +285,7 @@ const STEPS: StepDef[] = [
 
 async function getProjetos(): Promise<Projeto[]> {
   try {
-    const res = await fetch(`${API_URL}/projetos`, { cache: 'no-store' });
+    const res = await fetch(`${SERVER_API_URL}/projetos`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -296,7 +295,7 @@ async function getProjetos(): Promise<Projeto[]> {
 
 async function getMembros(): Promise<Membro[]> {
   try {
-    const res = await fetch(`${API_URL}/membros`, { cache: 'no-store' });
+    const res = await fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch {
