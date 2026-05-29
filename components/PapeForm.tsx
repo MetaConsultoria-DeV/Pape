@@ -602,7 +602,8 @@ function resolveEyebrow(
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
-const REQUIRED_PASSWORD = 'ProjetosDib';
+// REQUIRED_PASSWORD removido para rodar via proxy server-side.
+
 
 export default function PapeForm({
   projetos,
@@ -829,8 +830,8 @@ export default function PapeForm({
 
   const handleConfirmCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (senha !== REQUIRED_PASSWORD) {
-      setPasswordError('Senha incorreta. Verifique e tente novamente.');
+    if (senha !== pendingData?.nome_projeto) {
+      setPasswordError('O texto não confere com o nome do projeto.');
       return;
     }
     if (!pendingData) return;
@@ -838,7 +839,7 @@ export default function PapeForm({
     setSubmitting(true);
     setPasswordError(null);
     try {
-      await axios.post(`${API_URL}/projetos`, {
+      await axios.post('/api/projetos', {
         nome_projeto: pendingData.nome_projeto,
         descricao_projeto: pendingData.descricao_projeto,
         data_inicio: pendingData.data_inicio,
@@ -1237,7 +1238,7 @@ export default function PapeForm({
                 <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
                   Você está prestes a cadastrar um novo projeto{' '}
                   <strong style={{ color: 'var(--meta-navy)' }}>&quot;{pendingData?.nome_projeto}&quot;</strong>.
-                  Para confirmar, digite a senha correspondente.
+                  Para confirmar, digite o nome do projeto.
                 </p>
               </div>
             </div>
@@ -1277,7 +1278,7 @@ export default function PapeForm({
               </span>
             </div>
 
-            {/* Formulário de senha */}
+            {/* Formulário de confirmação */}
             <form onSubmit={handleConfirmCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label
@@ -1290,25 +1291,25 @@ export default function PapeForm({
                     marginBottom: '8px',
                   }}
                 >
-                  Digite a senha de confirmação
+                  Digite o nome do projeto para confirmar
                 </label>
                 <input
                   id="create-password"
-                  type="password"
+                  type="text"
                   className="meta-input"
                   value={senha}
                   onChange={(e) => {
                     setSenha(e.target.value);
                     setPasswordError(null);
                   }}
-                  placeholder="Senha de criação"
+                  placeholder={pendingData?.nome_projeto}
                   autoComplete="off"
                   autoFocus
                   disabled={submitting}
                   style={{
                     borderColor: passwordError
                       ? 'rgba(229, 72, 77, 0.6)'
-                      : senha === REQUIRED_PASSWORD && senha.length > 0
+                      : senha === pendingData?.nome_projeto && senha.length > 0
                       ? 'rgba(31, 191, 106, 0.6)'
                       : undefined,
                   }}

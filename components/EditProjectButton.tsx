@@ -47,8 +47,8 @@ type Props = {
   projeto: ProjectDetails;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
-const REQUIRED_PASSWORD = 'ProjetosDib';
+// API_URL e REQUIRED_PASSWORD removidos para rodar via proxy server-side.
+
 
 export default function EditProjectButton({ projeto }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -95,8 +95,8 @@ export default function EditProjectButton({ projeto }: Props) {
 
   const handleConfirmSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (senha !== REQUIRED_PASSWORD) {
-      setPasswordError('Senha incorreta. Verifique e tente novamente.');
+    if (senha !== projeto.nome) {
+      setPasswordError('O texto não confere com o nome do projeto.');
       return;
     }
 
@@ -114,7 +114,7 @@ export default function EditProjectButton({ projeto }: Props) {
     };
 
     try {
-      const res = await fetch(`${API_URL}/projetos/${projeto.id}`, {
+      const res = await fetch(`/api/projetos/${projeto.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -495,7 +495,7 @@ export default function EditProjectButton({ projeto }: Props) {
                 <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
                   Você está prestes a alterar os dados do projeto{' '}
                   <strong style={{ color: 'var(--meta-navy)' }}>&quot;{projeto.nome}&quot;</strong>.
-                  Para confirmar, digite a senha correspondente.
+                  Para confirmar, digite o nome do projeto.
                 </p>
               </div>
             </div>
@@ -535,7 +535,7 @@ export default function EditProjectButton({ projeto }: Props) {
               </span>
             </div>
 
-            {/* Formulário de senha */}
+            {/* Formulário de confirmação */}
             <form onSubmit={handleConfirmSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label
@@ -548,25 +548,25 @@ export default function EditProjectButton({ projeto }: Props) {
                     marginBottom: '8px',
                   }}
                 >
-                  Digite a senha de confirmação
+                  Digite o nome do projeto para confirmar
                 </label>
                 <input
                   id="edit-password"
-                  type="password"
+                  type="text"
                   className="meta-input"
                   value={senha}
                   onChange={(e) => {
                     setSenha(e.target.value);
                     setPasswordError(null);
                   }}
-                  placeholder="Senha de edição"
+                  placeholder={projeto.nome}
                   autoComplete="off"
                   autoFocus
                   disabled={loading}
                   style={{
                     borderColor: passwordError
                       ? 'rgba(229, 72, 77, 0.6)'
-                      : senha === REQUIRED_PASSWORD && senha.length > 0
+                      : senha === projeto.nome && senha.length > 0
                       ? 'rgba(31, 191, 106, 0.6)'
                       : undefined,
                   }}

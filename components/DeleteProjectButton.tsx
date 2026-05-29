@@ -8,8 +8,8 @@ type Props = {
   projetoNome: string;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
-const REQUIRED_PASSWORD = 'ProjetosDib';
+// API_URL e REQUIRED_PASSWORD removidos para rodar via proxy server-side.
+
 
 export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,8 +34,8 @@ export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (senha !== REQUIRED_PASSWORD) {
-      setError('Senha incorreta. Verifique e tente novamente.');
+    if (senha !== projetoNome) {
+      setError('O texto não confere com o nome do projeto.');
       return;
     }
 
@@ -44,7 +44,7 @@ export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
 
     try {
       const res = await fetch(
-        `${API_URL}/projetos/${projetoId}?senha=${encodeURIComponent(senha)}`,
+        `/api/projetos/${projetoId}`,
         { method: 'DELETE' },
       );
 
@@ -63,7 +63,7 @@ export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
     }
   };
 
-  const isPasswordCorrect = senha === REQUIRED_PASSWORD;
+  const isPasswordCorrect = senha === projetoNome;
 
   return (
     <>
@@ -232,7 +232,7 @@ export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
               </span>
             </div>
 
-            {/* Formulário de senha */}
+            {/* Formulário de confirmação */}
             <form onSubmit={handleDelete} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label
@@ -245,18 +245,18 @@ export default function DeleteProjectButton({ projetoId, projetoNome }: Props) {
                     marginBottom: '8px',
                   }}
                 >
-                  Digite a senha de confirmação
+                  Digite o nome do projeto para confirmar
                 </label>
                 <input
                   id="delete-password"
-                  type="password"
+                  type="text"
                   className="meta-input"
                   value={senha}
                   onChange={(e) => {
                     setSenha(e.target.value);
                     setError(null);
                   }}
-                  placeholder="Senha de exclusão"
+                  placeholder={projetoNome}
                   autoComplete="off"
                   autoFocus
                   disabled={loading}
