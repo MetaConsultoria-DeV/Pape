@@ -287,6 +287,34 @@ function MembrosSelect({
 
 // ── Renderer genérico por tipo de campo ──────────────────────────────────────
 
+function getVisibleFieldNames(currentStep: StepDef, values: Partial<PapeFormInputs>): string[] {
+  return currentStep.fields
+    .filter((field) => {
+      if (!('showWhen' in field) || !field.showWhen) return true;
+      const watched = values[field.showWhen.field as keyof PapeFormInputs] as string;
+      return watched === field.showWhen.value;
+    })
+    .map((field) => field.name);
+}
+
+function hasEmptyRequiredField(
+  fieldNames: string[],
+  values: Partial<PapeFormInputs>,
+  selectedProject?: Projeto,
+): boolean {
+  for (const name of fieldNames) {
+    if (name === 'nome_orientador' && selectedProject?.nome_orientador) continue;
+
+    const value = values[name as keyof PapeFormInputs];
+
+    if (value === undefined || value === null) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    if (typeof value === 'number' && value === 0) return true;
+    if (name === 'motivos_atraso' && Array.isArray(value) && value.length === 0) return true;
+  }
+  return false;
+}
+
 function OrientadorCard({ nome }: { nome: string }) {
   return (
     <div
@@ -601,12 +629,13 @@ export default function PapeForm({
   const [gerenteProjetos, setGerenteProjetos] = useState<Projeto[]>(mode === 'pape' ? [] : projetos);
   const [projetosLoading, setProjetosLoading] = useState(false);
   const [projetosError, setProjetosError] = useState<string | null>(null);
+  const [stepError, setStepError] = useState<string | null>(null);
 
   const showSuccessStep = mode === 'visual-project' ? step === TOTAL_STEPS + 1 : step === TOTAL_STEPS;
   const storageKey = mode === 'visual-project' ? 'visual-project-draft' : 'pape-draft';
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  const { control, watch, handleSubmit, reset, setValue } = useForm<PapeFormInputs>({
+  const { control, watch, handleSubmit, reset, setValue, trigger } = useForm<PapeFormInputs>({
     resolver: mode === 'pape' ? zodResolver(papeFormSchema) : undefined,
     defaultValues: {
       nome_projeto: '',
@@ -713,6 +742,10 @@ export default function PapeForm({
     setValue('possui_orientador', selectedProject.possui_orientador ? 'Sim' : 'Não', { shouldValidate: false });
     setValue('nome_orientador', selectedProject.nome_orientador ?? '', { shouldValidate: false });
   }, [mode, selectedProject, selectedProjectHasOrientadorInfo, setValue]);
+
+  useEffect(() => {
+    setStepError(null);
+  }, [step]);
 
   const getStepIndexByField = (fieldName: string) =>
     steps.findIndex((candidate) => candidate.fields.some((field) => field.name === fieldName));
@@ -867,6 +900,28 @@ export default function PapeForm({
     setStepHistory([0]);
   };
 
+  const handleNextClick = async () => {
+    if (showReviewStep) {
+      handleSubmit(onSubmit)();
+      return;
+    }
+    if (isLastStep) {
+      mode === 'visual-project' ? goToReviewStep() : handleSubmit(onSubmit)();
+      return;
+    }
+    if (currentStep) {
+      const visibleNames = getVisibleFieldNames(currentStep, values) as Path<PapeFormInputs>[];
+      const schemaOk = await trigger(visibleNames);
+      const allFilled = !hasEmptyRequiredField(visibleNames, values, selectedProject);
+      if (!schemaOk || !allFilled) {
+        setStepError('Preencha todos os campos obrigatórios antes de continuar.');
+        return;
+      }
+    }
+    setStepError(null);
+    goToNextStep();
+  };
+
   const showReviewStep = mode === 'visual-project' && step === TOTAL_STEPS;
   const totalVisibleSteps = mode === 'visual-project' ? TOTAL_STEPS + 1 : TOTAL_STEPS;
   const currentVisibleStep = showSuccessStep ? totalVisibleSteps : Math.min(step + 1, totalVisibleSteps);
@@ -1016,6 +1071,22 @@ export default function PapeForm({
             {!showSuccessStep && (
               <>
                 <div className="meta-divider" />
+                {stepError && (
+                  <div
+                    style={{
+                      padding: '12px 16px',
+                      borderRadius: 'var(--radius-sm, 8px)',
+                      background: 'rgba(217, 45, 32, 0.06)',
+                      border: '1px solid rgba(217, 45, 32, 0.25)',
+                      color: 'var(--meta-danger, #D92D20)',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      marginBottom: 12,
+                    }}
+                  >
+                    Preencha todos os campos obrigatórios antes de continuar.
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button
                     onClick={goToPreviousStep}
@@ -1026,19 +1097,7 @@ export default function PapeForm({
                     ← Anterior
                   </button>
                   <button
-                    onClick={() => {
-                      if (showReviewStep) {
-                        handleSubmit(onSubmit)();
-                        return;
-                      }
-
-                      if (isLastStep) {
-                        mode === 'visual-project' ? goToReviewStep() : handleSubmit(onSubmit)();
-                        return;
-                      }
-
-                      goToNextStep();
-                    }}
+                    onClick={handleNextClick}
                     disabled={submitting}
                     className="btn btn-primary"
                     style={{ flex: 2 }}
