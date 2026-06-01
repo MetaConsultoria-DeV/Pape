@@ -37,6 +37,7 @@ type ProjectDetails = {
   valor_total: number | null;
   possui_orientador: number | null;
   nome_orientador: string | null;
+  status: 'ativo' | 'finalizado' | 'pausado';
   servicos: Service[];
   coordenacoes: Coordination[];
   membros: Member[];
@@ -66,6 +67,7 @@ export default function EditProjectButton({ projeto }: Props) {
   const [valorTotal, setValorTotal] = useState(projeto.valor_total !== null ? String(projeto.valor_total) : '');
   const [possuiOrientador, setPossuiOrientador] = useState(projeto.possui_orientador === 1 ? 'Sim' : 'Não');
   const [nomeOrientador, setNomeOrientador] = useState(projeto.nome_orientador ?? '');
+  const [status, setStatus] = useState<'ativo' | 'finalizado' | 'pausado'>(projeto.status);
 
   const router = useRouter();
 
@@ -77,6 +79,7 @@ export default function EditProjectButton({ projeto }: Props) {
     setValorTotal(projeto.valor_total !== null ? String(projeto.valor_total) : '');
     setPossuiOrientador(projeto.possui_orientador === 1 ? 'Sim' : 'Não');
     setNomeOrientador(projeto.nome_orientador ?? '');
+    setStatus(projeto.status);
     setError(null);
     setIsOpen(true);
   };
@@ -111,6 +114,7 @@ export default function EditProjectButton({ projeto }: Props) {
       valor_total: valorTotal ? parseFloat(valorTotal) : null,
       possui_orientador: possuiOrientador === 'Sim' ? 1 : 0,
       nome_orientador: possuiOrientador === 'Sim' && nomeOrientador.trim() ? nomeOrientador.trim() : null,
+      status: status,
     };
 
     try {
@@ -321,6 +325,49 @@ export default function EditProjectButton({ projeto }: Props) {
                   onChange={(e) => setValorTotal(e.target.value)}
                   placeholder="Ex: 15000.00"
                 />
+              </div>
+
+              {/* Status do Projeto */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '700', color: 'var(--meta-navy)', marginBottom: '8px' }}>
+                  Status do Projeto
+                </label>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  {[
+                    { value: 'ativo', label: 'Ativo' },
+                    { value: 'pausado', label: 'Pausado' },
+                    { value: 'finalizado', label: 'Finalizado' }
+                  ].map((opt) => (
+                    <label
+                      key={opt.value}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '12px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '2px solid',
+                        borderColor: status === opt.value ? 'var(--meta-blue)' : 'var(--meta-navy-10)',
+                        backgroundColor: status === opt.value ? 'rgba(0, 103, 255, 0.02)' : '#FAFBFC',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        color: 'var(--meta-navy)',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="projectStatus"
+                        value={opt.value}
+                        checked={status === opt.value}
+                        onChange={() => setStatus(opt.value as any)}
+                        style={{ marginRight: '10px', accentColor: 'var(--meta-blue)' }}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Orientador Técnico */}

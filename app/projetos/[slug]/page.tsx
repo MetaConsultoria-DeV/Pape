@@ -59,6 +59,7 @@ type ProjectDetails = {
   valor_total: number | null;
   possui_orientador: number | null;
   nome_orientador: string | null;
+  status: 'ativo' | 'finalizado' | 'pausado';
   servicos: Service[];
   coordenacoes: Coordination[];
   membros: Member[];
@@ -163,20 +164,8 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
     notFound();
   }
 
-  // Determinar status do projeto
-  const latestAcomp = projeto.acompanhamentos?.[0];
-  let calculatedStatus: 'ativo' | 'finalizado' | 'pausado' = 'ativo';
-  
-  if (
-    projeto.numero_contrato?.startsWith('CONTRATO-TEMP') === false && 
-    (latestAcomp?.status_cronograma === 'Concluido' || latestAcomp?.status_cronograma === 'Concluído')
-  ) {
-    calculatedStatus = 'finalizado';
-  } else if (projeto.descricao?.toLowerCase().includes('pausado')) {
-    calculatedStatus = 'pausado';
-  }
-  
-  const statusConfig = getStatusBadge(calculatedStatus);
+  const latestAcomp = projeto.acompanhamentos[0] || null;
+  const statusConfig = getStatusBadge(projeto.status);
 
   // Dividir membros entre gerente e consultores
   const gerentes = projeto.membros.filter((m) => 

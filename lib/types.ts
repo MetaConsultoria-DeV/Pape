@@ -31,6 +31,7 @@ export interface Projeto {
   valor_total?: number | null;
   possui_orientador?: boolean | null;
   nome_orientador?: string | null;
+  status: 'ativo' | 'finalizado' | 'pausado';
 }
 
 export interface ProjetoDetalhes extends Projeto {
