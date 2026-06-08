@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Base usada no NAVEGADOR (client components / formulários públicos).
 export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
@@ -8,6 +8,20 @@ export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localho
 export const SERVER_API_URL = process.env.BACKEND_API_URL ?? PUBLIC_API_URL;
 
 const ADMIN_TOKEN = process.env.ADMIN_API_TOKEN ?? '';
+
+/** Valida se a senha de confirmação enviada pelo cliente é correta. */
+export function validateConfirmationPassword(req: NextRequest): NextResponse | null {
+  const confirmationPassword = req.headers.get('x-confirmation-password');
+  const serverPassword = process.env.CONFIRMATION_PASSWORD || 'meta';
+
+  if (confirmationPassword !== serverPassword) {
+    return NextResponse.json(
+      { detail: 'Senha de confirmação incorreta.' },
+      { status: 401 },
+    );
+  }
+  return null;
+}
 
 /** Encaminha uma requisição de escrita ao backend FastAPI injetando o token de admin. */
 export async function proxyWrite(

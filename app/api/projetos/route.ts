@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SERVER_API_URL, proxyWrite } from '@/lib/api';
+import { SERVER_API_URL, proxyWrite, validateConfirmationPassword } from '@/lib/api';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -33,6 +33,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = validateConfirmationPassword(req);
+  if (authError) return authError;
+
   const payload = await req.text();
   return proxyWrite('/projetos', 'POST', payload);
 }

@@ -98,10 +98,6 @@ export default function EditProjectButton({ projeto }: Props) {
 
   const handleConfirmSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (senha !== projeto.nome) {
-      setPasswordError('O texto não confere com o nome do projeto.');
-      return;
-    }
 
     setLoading(true);
     setPasswordError(null);
@@ -122,6 +118,7 @@ export default function EditProjectButton({ projeto }: Props) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'x-confirmation-password': senha,
         },
         body: JSON.stringify(payload),
       });
@@ -542,7 +539,7 @@ export default function EditProjectButton({ projeto }: Props) {
                 <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
                   Você está prestes a alterar os dados do projeto{' '}
                   <strong style={{ color: 'var(--meta-navy)' }}>&quot;{projeto.nome}&quot;</strong>.
-                  Para confirmar, digite o nome do projeto.
+                  Para confirmar, digite a senha de confirmação.
                 </p>
               </div>
             </div>
@@ -595,25 +592,25 @@ export default function EditProjectButton({ projeto }: Props) {
                     marginBottom: '8px',
                   }}
                 >
-                  Digite o nome do projeto para confirmar
+                  Digite a senha de confirmação para confirmar
                 </label>
                 <input
                   id="edit-password"
-                  type="text"
+                  type="password"
                   className="meta-input"
                   value={senha}
                   onChange={(e) => {
                     setSenha(e.target.value);
                     setPasswordError(null);
                   }}
-                  placeholder={projeto.nome}
+                  placeholder="Senha"
                   autoComplete="off"
                   autoFocus
                   disabled={loading}
                   style={{
                     borderColor: passwordError
                       ? 'rgba(229, 72, 77, 0.6)'
-                      : senha === projeto.nome && senha.length > 0
+                      : senha.length > 0
                       ? 'rgba(31, 191, 106, 0.6)'
                       : undefined,
                   }}

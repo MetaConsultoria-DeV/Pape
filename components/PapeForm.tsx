@@ -830,10 +830,6 @@ export default function PapeForm({
 
   const handleConfirmCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (senha !== pendingData?.nome_projeto) {
-      setPasswordError('O texto não confere com o nome do projeto.');
-      return;
-    }
     if (!pendingData) return;
 
     setSubmitting(true);
@@ -850,6 +846,10 @@ export default function PapeForm({
         gerente_projeto: pendingData.gerente_projeto,
         possui_orientador: pendingData.possui_orientador,
         nome_orientador: pendingData.nome_orientador,
+      }, {
+        headers: {
+          'x-confirmation-password': senha,
+        }
       });
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(storageKey);
@@ -1238,7 +1238,7 @@ export default function PapeForm({
                 <p style={{ fontSize: '14px', color: 'var(--meta-navy-50)', lineHeight: '1.6', margin: 0 }}>
                   Você está prestes a cadastrar um novo projeto{' '}
                   <strong style={{ color: 'var(--meta-navy)' }}>&quot;{pendingData?.nome_projeto}&quot;</strong>.
-                  Para confirmar, digite o nome do projeto.
+                  Para confirmar, digite a senha de confirmação.
                 </p>
               </div>
             </div>
@@ -1291,25 +1291,25 @@ export default function PapeForm({
                     marginBottom: '8px',
                   }}
                 >
-                  Digite o nome do projeto para confirmar
+                  Digite a senha de confirmação para confirmar
                 </label>
                 <input
                   id="create-password"
-                  type="text"
+                  type="password"
                   className="meta-input"
                   value={senha}
                   onChange={(e) => {
                     setSenha(e.target.value);
                     setPasswordError(null);
                   }}
-                  placeholder={pendingData?.nome_projeto}
+                  placeholder="Senha"
                   autoComplete="off"
                   autoFocus
                   disabled={submitting}
                   style={{
                     borderColor: passwordError
                       ? 'rgba(229, 72, 77, 0.6)'
-                      : senha === pendingData?.nome_projeto && senha.length > 0
+                      : senha.length > 0
                       ? 'rgba(31, 191, 106, 0.6)'
                       : undefined,
                   }}
