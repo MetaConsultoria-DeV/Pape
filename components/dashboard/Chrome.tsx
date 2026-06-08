@@ -216,10 +216,17 @@ export function DashboardShell({
               style={{ width: 'auto', height: 36 }}
             />
 
-            <Link href="/" className="meta-header-action">
-              <ArrowLeft size={18} aria-hidden="true" />
-              Voltar ao formulário
-            </Link>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <Link href="/projetos" className="meta-header-action">
+                <ClipboardList size={18} aria-hidden="true" />
+                Projetos
+              </Link>
+
+              <Link href="/" className="meta-header-action">
+                <ArrowLeft size={18} aria-hidden="true" />
+                Voltar ao formulário
+              </Link>
+            </div>
           </div>
 
           <div className="dashboard-hero-copy">
