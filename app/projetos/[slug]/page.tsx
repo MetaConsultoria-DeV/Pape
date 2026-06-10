@@ -164,6 +164,16 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
     notFound();
   }
 
+  let servicos = [];
+  try {
+    const resServicos = await fetch(`${SERVER_API_URL}/servicos`, { cache: 'no-store' });
+    if (resServicos.ok) {
+      servicos = await resServicos.json();
+    }
+  } catch (error) {
+    console.error('Erro ao buscar serviços no detalhe do projeto:', error);
+  }
+
   const latestAcomp = projeto.acompanhamentos[0] || null;
   const statusConfig = getStatusBadge(projeto.status);
 
@@ -253,7 +263,7 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <EditProjectButton projeto={projeto} />
+            <EditProjectButton projeto={projeto} servicos={servicos} />
             <DeleteProjectButton projetoId={projeto.id} projetoNome={projeto.nome} />
             <Link 
               href="/projetos"

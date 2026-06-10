@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ServiceSelector from './ServiceSelector';
 
 type Member = {
   id: number;
@@ -46,12 +47,13 @@ type ProjectDetails = {
 
 type Props = {
   projeto: ProjectDetails;
+  servicos: any[];
 };
 
 // API_URL e REQUIRED_PASSWORD removidos para rodar via proxy server-side.
 
 
-export default function EditProjectButton({ projeto }: Props) {
+export default function EditProjectButton({ projeto, servicos }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [senha, setSenha] = useState('');
@@ -68,6 +70,9 @@ export default function EditProjectButton({ projeto }: Props) {
   const [possuiOrientador, setPossuiOrientador] = useState(projeto.possui_orientador === 1 ? 'Sim' : 'Não');
   const [nomeOrientador, setNomeOrientador] = useState(projeto.nome_orientador ?? '');
   const [status, setStatus] = useState<'ativo' | 'finalizado' | 'pausado'>(projeto.status);
+  const [servicosProjeto, setServicosProjeto] = useState<number[]>(
+    projeto.servicos.map((s) => s.id)
+  );
 
   const router = useRouter();
 
@@ -80,6 +85,7 @@ export default function EditProjectButton({ projeto }: Props) {
     setPossuiOrientador(projeto.possui_orientador === 1 ? 'Sim' : 'Não');
     setNomeOrientador(projeto.nome_orientador ?? '');
     setStatus(projeto.status);
+    setServicosProjeto(projeto.servicos.map((s) => s.id));
     setError(null);
     setIsOpen(true);
   };
@@ -111,6 +117,7 @@ export default function EditProjectButton({ projeto }: Props) {
       possui_orientador: possuiOrientador === 'Sim' ? 1 : 0,
       nome_orientador: possuiOrientador === 'Sim' && nomeOrientador.trim() ? nomeOrientador.trim() : null,
       status: status,
+      servicos_projeto: servicosProjeto,
     };
 
     try {
@@ -321,6 +328,18 @@ export default function EditProjectButton({ projeto }: Props) {
                   value={valorTotal}
                   onChange={(e) => setValorTotal(e.target.value)}
                   placeholder="Ex: 15000.00"
+                />
+              </div>
+
+              {/* Serviços do Projeto */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '700', color: 'var(--meta-navy)', marginBottom: '8px' }}>
+                  Serviços do Projeto
+                </label>
+                <ServiceSelector
+                  servicosPorCoordenacao={servicos}
+                  selectedIds={servicosProjeto}
+                  onChange={setServicosProjeto}
                 />
               </div>
 
