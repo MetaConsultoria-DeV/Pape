@@ -10,17 +10,20 @@ type Props = {
 
 export default function DeleteAcompanhamentoButton({ acompanhamentoId, dataRespostaFormatada }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleOpen = () => {
+    setSenha('');
     setError(null);
     setIsOpen(true);
   };
 
   const handleClose = () => {
     if (loading) return;
+    setSenha('');
     setError(null);
     setIsOpen(false);
   };
@@ -33,6 +36,9 @@ export default function DeleteAcompanhamentoButton({ acompanhamentoId, dataRespo
     try {
       const res = await fetch(`/api/acompanhamentos/${acompanhamentoId}`, {
         method: 'DELETE',
+        headers: {
+          'x-confirmation-password': senha,
+        },
       });
 
       if (!res.ok) {
@@ -179,6 +185,31 @@ export default function DeleteAcompanhamentoButton({ acompanhamentoId, dataRespo
               </div>
             </div>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label
+                htmlFor={`senha-acomp-${acompanhamentoId}`}
+                style={{ fontSize: '13px', fontWeight: '700', color: 'var(--meta-navy)' }}
+              >
+                Senha de confirmação
+              </label>
+              <input
+                id={`senha-acomp-${acompanhamentoId}`}
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="Digite a senha para confirmar"
+                autoComplete="off"
+                disabled={loading}
+                style={{
+                  padding: '10px 14px',
+                  fontSize: '14px',
+                  border: '1px solid var(--meta-navy-10)',
+                  borderRadius: 'var(--radius-md)',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
             {error && (
               <div
                 style={{
@@ -234,7 +265,7 @@ export default function DeleteAcompanhamentoButton({ acompanhamentoId, dataRespo
               <button
                 type="button"
                 onClick={handleDelete}
-                disabled={loading}
+                disabled={loading || !senha}
                 style={{
                   padding: '10px 20px',
                   fontSize: '13.5px',
