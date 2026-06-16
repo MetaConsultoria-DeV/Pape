@@ -51,12 +51,13 @@ type Props = {
   projeto: ProjectDetails;
   servicos: any[];
   membrosPorCoordenacao: any[];
+  membros: any[];
 };
 
 // API_URL e REQUIRED_PASSWORD removidos para rodar via proxy server-side.
 
 
-export default function EditProjectButton({ projeto, servicos, membrosPorCoordenacao }: Props) {
+export default function EditProjectButton({ projeto, servicos, membrosPorCoordenacao, membros }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [senha, setSenha] = useState('');
@@ -81,6 +82,10 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
       .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
       .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
   );
+  const activeGerente = projeto.membros.find((m) => 
+    m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')
+  );
+  const [gerenteProjeto, setGerenteProjeto] = useState<string>(activeGerente ? activeGerente.nome : '');
 
   const router = useRouter();
 
@@ -99,6 +104,10 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
         .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
         .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
     );
+    const activeG = projeto.membros.find((m) => 
+      m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')
+    );
+    setGerenteProjeto(activeG ? activeG.nome : '');
     setError(null);
     setIsOpen(true);
   };
@@ -132,6 +141,7 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
       status: status,
       servicos_projeto: servicosProjeto,
       membros_projeto: membrosProjeto,
+      gerente_projeto: gerenteProjeto || null,
     };
 
     try {
@@ -355,6 +365,24 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
                   selectedKeys={membrosProjeto}
                   onChange={setMembrosProjeto}
                 />
+              </div>
+
+              {/* Gerente do Projeto */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '700', color: 'var(--meta-navy)', marginBottom: '8px' }}>
+                  Gerente do Projeto
+                </label>
+                <select
+                  className="meta-input"
+                  value={gerenteProjeto}
+                  onChange={(e) => setGerenteProjeto(e.target.value)}
+                  style={{ width: '100%', height: '46px', padding: '0 16px', backgroundColor: '#FAFBFC' }}
+                >
+                  <option value="">Selecione um gerente…</option>
+                  {membros.map((m: any) => (
+                    <option key={m.id} value={m.nome}>{m.nome}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Serviços do Projeto */}

@@ -185,6 +185,16 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
     console.error('Erro ao buscar membros por coordenação no detalhe do projeto:', error);
   }
 
+  let membros = [];
+  try {
+    const resMembrosList = await fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' });
+    if (resMembrosList.ok) {
+      membros = await resMembrosList.json();
+    }
+  } catch (error) {
+    console.error('Erro ao buscar lista de membros no detalhe do projeto:', error);
+  }
+
   const latestAcomp = projeto.acompanhamentos[0] || null;
   const statusConfig = getStatusBadge(projeto.status);
 
@@ -274,7 +284,7 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <EditProjectButton projeto={projeto} servicos={servicos} membrosPorCoordenacao={membrosPorCoordenacao} />
+            <EditProjectButton projeto={projeto} servicos={servicos} membrosPorCoordenacao={membrosPorCoordenacao} membros={membros} />
             <DeleteProjectButton projetoId={projeto.id} projetoNome={projeto.nome} />
             <Link 
               href="/projetos"
