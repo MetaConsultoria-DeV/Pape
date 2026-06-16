@@ -21,6 +21,7 @@ import type { LucideIcon } from 'lucide-react';
 import { DASHBOARD_SECTIONS, getDashboardSection } from './config';
 import type { DashboardSlug } from './types';
 import { formatNumber, getScoreTone, getStatusVariant } from './utils';
+import LogoutButton from '@/components/LogoutButton';
 
 function getSectionIcon(slug: DashboardSlug): LucideIcon {
   if (slug === 'riscos') {
@@ -226,6 +227,8 @@ export function DashboardShell({
                 <ArrowLeft size={18} aria-hidden="true" />
                 Voltar ao formulário
               </Link>
+
+              <LogoutButton />
             </div>
           </div>
 

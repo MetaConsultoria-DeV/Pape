@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MetaSymbol } from '@/components/ui';
+import LogoutButton from '@/components/LogoutButton';
 
 type PapeHeaderProps = {
   actionHref?: string;
@@ -9,9 +10,11 @@ type PapeHeaderProps = {
   dashboardLabel?: string;
   backHref?: string;
   backLabel?: string;
+  /** Exibe o botão "Sair" (encerra a sessão). Padrão: true. */
+  showLogout?: boolean;
 };
 
-export default function PapeHeader({ actionHref, actionLabel, dashboardHref, dashboardLabel, backHref, backLabel }: PapeHeaderProps) {
+export default function PapeHeader({ actionHref, actionLabel, dashboardHref, dashboardLabel, backHref, backLabel, showLogout = true }: PapeHeaderProps) {
   return (
     <header className="meta-header">
       <div className="meta-header-inner">
@@ -54,6 +57,7 @@ export default function PapeHeader({ actionHref, actionLabel, dashboardHref, das
                 {actionLabel}
               </Link>
             )}
+            {showLogout && <LogoutButton />}
           </div>
         </div>
 

@@ -1,0 +1,9 @@
+import { NextResponse } from 'next/server';
+import { SESSION_COOKIE, cookieOptions } from '@/lib/auth';
+
+/** Encerra a sessão limpando o cookie. */
+export async function POST() {
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(SESSION_COOKIE, '', cookieOptions(0));
+  return res;
+}
