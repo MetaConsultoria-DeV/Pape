@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ServiceSelector from './ServiceSelector';
+import MemberSelector from './MemberSelector';
 
 type Member = {
   id: number;
@@ -11,6 +12,7 @@ type Member = {
   cargo: string;
   coordenacao: string | null;
   coordenacao_sigla: string | null;
+  coordenacao_id: number | null;
 };
 
 type Service = {
@@ -48,12 +50,13 @@ type ProjectDetails = {
 type Props = {
   projeto: ProjectDetails;
   servicos: any[];
+  membrosPorCoordenacao: any[];
 };
 
 // API_URL e REQUIRED_PASSWORD removidos para rodar via proxy server-side.
 
 
-export default function EditProjectButton({ projeto, servicos }: Props) {
+export default function EditProjectButton({ projeto, servicos, membrosPorCoordenacao }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [senha, setSenha] = useState('');
@@ -73,6 +76,11 @@ export default function EditProjectButton({ projeto, servicos }: Props) {
   const [servicosProjeto, setServicosProjeto] = useState<number[]>(
     projeto.servicos.map((s) => s.id)
   );
+  const [membrosProjeto, setMembrosProjeto] = useState<string[]>(
+    projeto.membros
+      .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
+      .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
+  );
 
   const router = useRouter();
 
@@ -86,6 +94,11 @@ export default function EditProjectButton({ projeto, servicos }: Props) {
     setNomeOrientador(projeto.nome_orientador ?? '');
     setStatus(projeto.status);
     setServicosProjeto(projeto.servicos.map((s) => s.id));
+    setMembrosProjeto(
+      projeto.membros
+        .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
+        .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
+    );
     setError(null);
     setIsOpen(true);
   };
@@ -118,6 +131,7 @@ export default function EditProjectButton({ projeto, servicos }: Props) {
       nome_orientador: possuiOrientador === 'Sim' && nomeOrientador.trim() ? nomeOrientador.trim() : null,
       status: status,
       servicos_projeto: servicosProjeto,
+      membros_projeto: membrosProjeto,
     };
 
     try {
@@ -328,6 +342,18 @@ export default function EditProjectButton({ projeto, servicos }: Props) {
                   value={valorTotal}
                   onChange={(e) => setValorTotal(e.target.value)}
                   placeholder="Ex: 15000.00"
+                />
+              </div>
+
+              {/* Membros do Projeto */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '700', color: 'var(--meta-navy)', marginBottom: '8px' }}>
+                  Membros do Projeto
+                </label>
+                <MemberSelector
+                  membrosPorCoordenacao={membrosPorCoordenacao}
+                  selectedKeys={membrosProjeto}
+                  onChange={setMembrosProjeto}
                 />
               </div>
 
