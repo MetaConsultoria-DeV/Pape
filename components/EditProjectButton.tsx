@@ -79,11 +79,11 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
   );
   const [membrosProjeto, setMembrosProjeto] = useState<string[]>(
     projeto.membros
-      .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
+      .filter((m) => !m.cargo.toLowerCase().includes('gerente'))
       .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
   );
   const activeGerente = projeto.membros.find((m) => 
-    m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')
+    m.cargo.toLowerCase().includes('gerente')
   );
   const [gerenteProjeto, setGerenteProjeto] = useState<string>(activeGerente ? activeGerente.nome : '');
 
@@ -101,11 +101,11 @@ export default function EditProjectButton({ projeto, servicos, membrosPorCoorden
     setServicosProjeto(projeto.servicos.map((s) => s.id));
     setMembrosProjeto(
       projeto.membros
-        .filter((m) => !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')))
+        .filter((m) => !m.cargo.toLowerCase().includes('gerente'))
         .map((m) => `${m.id}-${m.coordenacao_id ?? 0}`)
     );
     const activeG = projeto.membros.find((m) => 
-      m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')
+      m.cargo.toLowerCase().includes('gerente')
     );
     setGerenteProjeto(activeG ? activeG.nome : '');
     setError(null);

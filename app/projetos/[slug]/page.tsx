@@ -200,10 +200,10 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
 
   // Dividir membros entre gerente e consultores
   const gerentes = projeto.membros.filter((m) => 
-    m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto')
+    m.cargo.toLowerCase().includes('gerente')
   );
   const consultores = projeto.membros.filter((m) => 
-    !(m.cargo.toLowerCase().includes('gerente') && m.cargo.toLowerCase().includes('projeto'))
+    !m.cargo.toLowerCase().includes('gerente')
   );
 
   return (
