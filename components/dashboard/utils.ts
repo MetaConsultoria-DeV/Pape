@@ -9,11 +9,20 @@ export function formatDate(value?: string) {
     return 'Sem data';
   }
 
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(new Date(`${value}T00:00:00`));
+  try {
+    const cleanDate = value.includes('T') ? value.split('T')[0] : value.split(' ')[0];
+    const dateObj = new Date(`${cleanDate}T00:00:00`);
+    if (isNaN(dateObj.getTime())) {
+      return value;
+    }
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(dateObj);
+  } catch {
+    return value;
+  }
 }
 
 export function entriesToChartData(entries: Record<string, number>, order?: string[]) {

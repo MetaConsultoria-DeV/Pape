@@ -159,6 +159,9 @@ const getCronogramaBadge = (status: string) => {
 
 export default async function ProjetoDetalhesPage({ params }: Props) {
   const { slug } = await params;
+  if (!slug || !/^\d+$/.test(slug)) {
+    notFound();
+  }
   const projeto = await getProjetoDetalhes(slug);
 
   if (!projeto) {

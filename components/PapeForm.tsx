@@ -28,6 +28,7 @@ interface BaseProps {
   label: ReactNode;
   number?: number;
   hint?: string;
+  required?: boolean;
 }
 
 function FormInput({
@@ -36,6 +37,7 @@ function FormInput({
   label,
   number,
   hint,
+  required = true,
   ...inputProps
 }: BaseProps & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -44,7 +46,7 @@ function FormInput({
       name={name}
       render={({ field, fieldState }) => (
         <div>
-          <FieldLabel number={number} hint={hint} required>{label}</FieldLabel>
+          <FieldLabel number={number} hint={hint} required={required}>{label}</FieldLabel>
           <InputField
             {...field}
             value={(field.value as string) ?? ''}
@@ -64,6 +66,7 @@ function FormTextarea({
   number,
   hint,
   maxLength,
+  required = true,
   ...textareaProps
 }: BaseProps & { maxLength?: number } & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
@@ -72,7 +75,7 @@ function FormTextarea({
       name={name}
       render={({ field, fieldState }) => (
         <div>
-          <FieldLabel number={number} hint={hint} required>{label}</FieldLabel>
+          <FieldLabel number={number} hint={hint} required={required}>{label}</FieldLabel>
           <textarea
             {...field}
             value={(field.value as string) ?? ''}
@@ -110,6 +113,7 @@ function FormRadio({
   number,
   options,
   columns,
+  required = true,
 }: BaseProps & { options: { value: string; label: string; description?: string }[]; columns?: number }) {
   return (
     <Controller
@@ -117,7 +121,7 @@ function FormRadio({
       name={name}
       render={({ field }) => (
         <div>
-          <FieldLabel number={number} required>{label}</FieldLabel>
+          <FieldLabel number={number} required={required}>{label}</FieldLabel>
           <RadioGroup
             options={options}
             value={field.value as string}
@@ -136,6 +140,7 @@ function FormCheckbox({
   label,
   number,
   options,
+  required = true,
 }: BaseProps & { options: string[] }) {
   return (
     <Controller
@@ -143,7 +148,7 @@ function FormCheckbox({
       name={name}
       render={({ field }) => (
         <div>
-          <FieldLabel number={number} required>{label}</FieldLabel>
+          <FieldLabel number={number} required={required}>{label}</FieldLabel>
           <CheckboxGroup
             options={options}
             value={(field.value as string[]) || []}
@@ -297,12 +302,23 @@ function getVisibleFieldNames(currentStep: StepDef, values: Partial<PapeFormInpu
     .map((field) => field.name);
 }
 
+const OPTIONAL_FIELDS = new Set<string>([
+  'descricao_projeto',
+  'data_inicio',
+  'numero_contrato',
+  'valor_projeto',
+  'servicos_projeto',
+  'membros_projeto',
+  'suficiencia_orcamento',
+]);
+
 function hasEmptyRequiredField(
   fieldNames: string[],
   values: Partial<PapeFormInputs>,
   selectedProject?: Projeto,
 ): boolean {
   for (const name of fieldNames) {
+    if (OPTIONAL_FIELDS.has(name)) continue;
     if (name === 'nome_orientador' && selectedProject?.nome_orientador) continue;
 
     const value = values[name as keyof PapeFormInputs];
@@ -403,7 +419,8 @@ function FieldRenderer({
   }
 
   const name = field.name as Path<PapeFormInputs>;
-  const base = { control, name, label: field.label, number: field.number };
+  const isOptional = OPTIONAL_FIELDS.has(field.name);
+  const base = { control, name, label: field.label, number: field.number, required: !isOptional };
 
   switch (field.type) {
     case 'input':
@@ -435,7 +452,7 @@ function FieldRenderer({
           name={name}
           render={({ field: rField, fieldState }) => (
             <div>
-              <FieldLabel number={field.number} required>{field.label}</FieldLabel>
+              <FieldLabel number={field.number} required={!isOptional}>{field.label}</FieldLabel>
               <ServiceSelector
                 servicosPorCoordenacao={servicos}
                 selectedIds={(rField.value as number[]) || []}
@@ -453,7 +470,7 @@ function FieldRenderer({
           name={name}
           render={({ field: rField, fieldState }) => (
             <div>
-              <FieldLabel number={field.number} required>{field.label}</FieldLabel>
+              <FieldLabel number={field.number} required={!isOptional}>{field.label}</FieldLabel>
               <MemberSelector
                 membrosPorCoordenacao={membrosPorCoordenacao}
                 selectedKeys={(rField.value as string[]) || []}
@@ -774,11 +791,6 @@ export default function PapeForm({
       return metodologiaStep >= 0 ? metodologiaStep : nextSequentialStep;
     }
 
-    if (currentFieldNames.has('primeira_resposta')) {
-      const orientadorStep = getStepIndexByField('possui_orientador');
-      return values.primeira_resposta === 'Não' && orientadorStep >= 0 ? orientadorStep : nextSequentialStep;
-    }
-
     if (currentFieldNames.has('possui_orientador')) {
       const metodologiaStep = getStepIndexByField('modelo_gerenciamento');
       return values.possui_orientador === 'Não' && metodologiaStep >= 0 ? metodologiaStep : nextSequentialStep;
@@ -948,10 +960,6 @@ export default function PapeForm({
       handleSubmit(onSubmit)();
       return;
     }
-    if (isLastStep) {
-      mode === 'visual-project' ? goToReviewStep() : handleSubmit(onSubmit)();
-      return;
-    }
     if (currentStep) {
       const visibleNames = getVisibleFieldNames(currentStep, values) as Path<PapeFormInputs>[];
       const schemaOk = await trigger(visibleNames);
@@ -962,6 +970,11 @@ export default function PapeForm({
       }
     }
     setStepError(null);
+
+    if (isLastStep) {
+      mode === 'visual-project' ? goToReviewStep() : handleSubmit(onSubmit)();
+      return;
+    }
     goToNextStep();
   };
 

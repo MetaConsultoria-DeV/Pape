@@ -25,7 +25,7 @@ type TooltipPayload = {
   color?: string;
   name?: string;
   value?: number;
-  payload?: ChartDatum;
+  payload?: ChartDatum & { originalLabel?: string };
 };
 
 function ChartEmpty({ message }: { message: string }) {
@@ -52,11 +52,12 @@ function ChartTooltip({
 
   const item = payload[0];
   const name = item.payload?.name ?? label ?? item.name;
+  const displayValue = item.payload?.originalLabel ?? (item.value ?? 0);
 
   return (
     <div className="dashboard-tooltip">
       <span className="dashboard-tooltip-label">{name}</span>
-      <strong>{item.value ?? 0}</strong>
+      <strong>{displayValue}</strong>
     </div>
   );
 }
@@ -273,6 +274,14 @@ export function ProgressLineChart({ data }: { data: ChartDatum[] }) {
     return <ChartEmpty message="Ainda não há histórico suficiente para montar o andamento do projeto." />;
   }
 
+  const rankLabels: Record<number, string> = {
+    1: '0-20%',
+    2: '21-40%',
+    3: '41-60%',
+    4: '61-80%',
+    5: '81-100%',
+  };
+
   const mappedData = data.map((item) => {
     let rank = 1;
     if (item.value >= 80) rank = 5;
@@ -284,6 +293,7 @@ export function ProgressLineChart({ data }: { data: ChartDatum[] }) {
     return {
       ...item,
       value: rank,
+      originalLabel: rankLabels[rank] ?? `${item.value}%`,
     };
   });
 
@@ -300,8 +310,9 @@ export function ProgressLineChart({ data }: { data: ChartDatum[] }) {
             domain={[1, 5]}
             tickCount={5}
             tick={{ fontSize: 12, fill: 'var(--meta-navy-50)', fontWeight: 700 }}
+            tickFormatter={(v) => rankLabels[v] || `${v}`}
             label={{
-              value: 'Faixa de Conclusão (ex.: 0~20...)',
+              value: 'Faixa de Conclusão',
               angle: -90,
               position: 'insideLeft',
               offset: -5,
