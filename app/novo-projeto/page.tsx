@@ -68,7 +68,7 @@ export default async function NovoProjetoPage() {
     const [resServicos, resMembrosPorCoord, resMembros] = await Promise.all([
       fetch(`${SERVER_API_URL}/servicos`, { cache: 'no-store' }),
       fetch(`${SERVER_API_URL}/membros-por-coordenacao`, { cache: 'no-store' }),
-      fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' }),
+      fetch(`${SERVER_API_URL}/gerentes/elegiveis`, { cache: 'no-store' }),
     ]);
 
     if (resServicos.ok) {
