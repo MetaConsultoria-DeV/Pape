@@ -295,7 +295,7 @@ async function getProjetos(): Promise<Projeto[]> {
 
 async function getMembros(): Promise<Membro[]> {
   try {
-    const res = await fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' });
+    const res = await fetch(`${SERVER_API_URL}/gerentes/ativos`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch {

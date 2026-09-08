@@ -190,7 +190,7 @@ export default async function ProjetoDetalhesPage({ params }: Props) {
 
   let membros = [];
   try {
-    const resMembrosList = await fetch(`${SERVER_API_URL}/membros`, { cache: 'no-store' });
+    const resMembrosList = await fetch(`${SERVER_API_URL}/gerentes/elegiveis`, { cache: 'no-store' });
     if (resMembrosList.ok) {
       membros = await resMembrosList.json();
     }
